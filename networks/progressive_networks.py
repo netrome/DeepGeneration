@@ -60,18 +60,19 @@ class TrivialPDiscriminator(nn.Module):
         self.deflate = nn.Conv2d(512, 512, 4)
         self.fc = nn.Linear(512, 1)
 
-        self.down6 = TrivialDownBlock(16, 32, self.activation)  # 256x256 -> 128x128
-        self.down5 = TrivialDownBlock(32, 64, self.activation)  # 128x128 -> 64x64
-        self.down4 = TrivialDownBlock(64, 128, self.activation)  # 64x64 -> 32x32
-        self.down3 = TrivialDownBlock(128, 256, self.activation)  # 32x32 -> 16x16
-        self.down2 = TrivialDownBlock(256, 256, self.activation)  # 16x16 -> 8x8
-        self.down1 = TrivialDownBlock(256, 512, self.activation)  # 8x8 -> 4x4
+        self.down1 = TrivialDownBlock(16, 32, self.activation)  # 256x256 -> 128x128
+        self.down2 = TrivialDownBlock(32, 64, self.activation)  # 128x128 -> 64x64
+        self.down3 = TrivialDownBlock(64, 128, self.activation)  # 64x64 -> 32x32
+        self.down4 = TrivialDownBlock(128, 256, self.activation)  # 32x32 -> 16x16
+        self.down5 = TrivialDownBlock(256, 256, self.activation)  # 16x16 -> 8x8
+        self.down6 = TrivialDownBlock(256, 512, self.activation)  # 8x8 -> 4x4
 
-        self.blocks = []
+        self.blocks = [self.down1, self.down2, self.down3, self.down4, self.down5, self.down6]
 
     def forward(self, img, levels=6):
+        start = 6 - levels
         for i in range(levels):
-            img = self.activation(self.blocks[i])
+            img = self.activation(self.blocks[start + i])
 
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 512))
