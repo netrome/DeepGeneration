@@ -8,7 +8,7 @@ class TrivialUpBlock(nn.Module):
         super().__init__()
         self.activation = activation
         self.upconv = nn.ConvTranspose2d(in_channels, in_channels, 2, stride=2)
-        self.thinner = nn.Conv2d(in_channels, out_channels, 3, stride=1)
+        self.thinner = nn.Conv2d(in_channels, out_channels, 3, padding=1)
 
     def forward(self, feature_map):
         return self.thinner(F.normalize(self.activation(self.upconv(feature_map))))
@@ -18,14 +18,14 @@ class TrivialDownBlock(nn.Module):
     def __init__(self, in_channels, out_channels, activation):
         super().__init__()
         self.activation = activation
-        self.fattener = nn.Conv2d(in_channels, out_channels, 3, stride=1)
-        self.conv = nn.Conv2d(in_channels, in_channels, 2, stride=2)
+        self.fattener = nn.Conv2d(in_channels, out_channels, 3, padding=1)
+        self.conv = nn.Conv2d(out_channels, out_channels, 2, stride=2)
 
     def forward(self, feature_map):
         return self.conv(self.activation(self.fattener(feature_map)))
 
 
-class TrivialPenerator(nn.Module):
+class TrivialGenerator(nn.Module):
     def __init__(self):
         super().__init__()
         self.activation = nn.LeakyReLU(negative_slope=0.2)
@@ -47,7 +47,7 @@ class TrivialPenerator(nn.Module):
         img = F.normalize(self.activation(self.low_conv(img)))
 
         for i in range(levels):
-            img = F.normalize(self.activation(self.block[i](img)))
+            img = F.normalize(self.activation(self.blocks[i](img)))
         return img
 
 
@@ -72,7 +72,7 @@ class TrivialDiscriminator(nn.Module):
     def forward(self, img, levels=6):
         start = 6 - levels
         for i in range(levels):
-            img = self.activation(self.blocks[start + i])
+            img = self.activation(self.blocks[start + i](img))
 
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 512))

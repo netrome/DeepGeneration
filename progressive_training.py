@@ -3,31 +3,37 @@ import settings
 
 from utils import datasets
 from utils import progressive_networks
+from utils import trainer
 import utils.utils as utils
 
 from torch.autograd import Variable
-from torch.utils.data import DataLoader
+
+import torch.utils.data
+import torch
 
 # Get utilities ---------------------------------------------------
 dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
-data_loader = DataLoader(dataset,
-                         batch_size=settings.BATCH_SIZE,
-                         shuffle=True,
-                         pin_memory=True)
+data_loader = torch.utils.data.DataLoader(dataset,
+                                          batch_size=settings.BATCH_SIZE,
+                                          shuffle=True,
+                                          pin_memory=True,
+                                          drop_last=True)
 visualizer = visualizer.Visualizer()
 
 # Define networks -------------------------------------------------
-G = progressive_networks.TrivialPenerator()
+G = progressive_networks.TrivialGenerator()
 D = progressive_networks.TrivialDiscriminator()
 
-point = dataset[12]
-print(point.shape)
-down = utils.downsample_tensor(Variable(point), 1).data
-print(down.shape)
+# Export to cuda
+if settings.CUDA:
+    G.cuda()
+    D.cuda()
 
-visualizer.update_image(down[0], "real_img")
-visualizer.update_image(down[1], "real_map")
-visualizer.update_image(down.mean(0), "real_cat")
+# Add optimizer
+opt_G = torch.optim.Adam(G.parameters(), lr=settings.LEARNING_RATE)
+opt_D = torch.optim.Adam(D.parameters(), lr=settings.LEARNING_RATE)
 
-
+# Initialize training
+stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader, stage=6, conversion_depth=16)
+stage.steps(520)
 

@@ -11,7 +11,10 @@ visualizer.update_image(data_point[0], "real_img")
 visualizer.update_image(data_point[1], "real_map")
 visualizer.update_image(data_point.mean(0), "real_cat")
 
-visualizer.update_loss(torch.randn(1), torch.randn(1), 1)
-visualizer.update_loss(torch.randn(1), torch.randn(1), 2)
-visualizer.update_loss(torch.randn(1), torch.randn(1), 3)
-visualizer.update_loss(torch.randn(1), torch.randn(1), 4)
+a = torch.randn(1)
+b = torch.randn(1)
+for i in range(100):
+    a += torch.randn(1)
+    b += torch.randn(1)
+    visualizer.update_loss(a, b)
+
