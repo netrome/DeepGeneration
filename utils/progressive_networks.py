@@ -25,7 +25,7 @@ class TrivialDownBlock(nn.Module):
         return self.conv(self.activation(self.fattener(feature_map)))
 
 
-class TrivialPGenerator(nn.Module):
+class TrivialPenerator(nn.Module):
     def __init__(self):
         super().__init__()
         self.activation = nn.LeakyReLU(negative_slope=0.2)
@@ -51,7 +51,7 @@ class TrivialPGenerator(nn.Module):
         return img
 
 
-class TrivialPDiscriminator(nn.Module):
+class TrivialDiscriminator(nn.Module):
     def __init__(self):
         super().__init__()
         self.activation = nn.LeakyReLU(negative_slope=0.2)
