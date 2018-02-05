@@ -40,8 +40,8 @@ class StageTrainer:
         return self.toRGB, self.fromRGB
 
     def steps(self, n):
-        for batch in cyclic_data_iterator(self.data_loader, n):
-            print("Yo")
+        print("Training for {} iterations".format(n))
+        for i, batch in enumerate(cyclic_data_iterator(self.data_loader, n)):
             batch = Variable(batch)
             if settings.CUDA:
                 batch = batch.cuda()
@@ -81,6 +81,8 @@ class StageTrainer:
                 loss.backward()
                 self.opt_fromRGB.step()
                 self.opt_D.step()
+
+            print("Iter {}/{}".format(i, n), end="\r")
 
 
 
