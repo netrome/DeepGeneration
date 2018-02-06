@@ -46,9 +46,9 @@ s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
 stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader,
                              stage=s, conversion_depth=c, downscale_factor=d)
 stage.visualize(visualizer)
-for i in range(100):
+for i in range(settings.CHUNKS):
     print("--- Chunk {} ---             ".format(i))
-    stage.steps(100)
+    stage.steps(settings.STEPS)
     stage.visualize(visualizer)
 
 # Save networks
