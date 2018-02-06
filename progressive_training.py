@@ -30,14 +30,15 @@ if settings.CUDA:
     D.cuda()
 
 # Add optimizer
-opt_G = torch.optim.Adam(G.parameters(), lr=settings.LEARNING_RATE)
-opt_D = torch.optim.Adam(D.parameters(), lr=settings.LEARNING_RATE)
+opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE)
+opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE)
 
 # Train with StageTrainer
-stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader, stage=6, conversion_depth=16)
+stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader,
+                             stage=1, conversion_depth=256, downscale_factor=32)
 stage.visualize(visualizer)
-for i in range(10):
-    print("Chunk {}".format(i))
+for i in range(1500):
+    print("--- Chunk {} ---             ".format(i))
     stage.steps(100)
     stage.visualize(visualizer)
 

@@ -58,26 +58,29 @@ class TrivialDiscriminator(nn.Module):
 
         self.low_conv = nn.Conv2d(512, 512, 3, padding=1)
         self.deflate = nn.Conv2d(512, 512, 4)
-        self.fc = nn.Linear(513, 1)
+        self.fc = nn.Linear(512, 1)
 
         self.down1 = TrivialDownBlock(16, 32, self.activation)  # 256x256 -> 128x128
         self.down2 = TrivialDownBlock(32, 64, self.activation)  # 128x128 -> 64x64
         self.down3 = TrivialDownBlock(64, 128, self.activation)  # 64x64 -> 32x32
         self.down4 = TrivialDownBlock(128, 256, self.activation)  # 32x32 -> 16x16
         self.down5 = TrivialDownBlock(256, 256, self.activation)  # 16x16 -> 8x8
-        self.down6 = TrivialDownBlock(256, 512, self.activation)  # 8x8 -> 4x4
+        self.down6 = TrivialDownBlock(256, 511, self.activation)  # 8x8 -> 4x4
 
         self.blocks = [self.down1, self.down2, self.down3, self.down4, self.down5, self.down6]
 
     def forward(self, img, levels=6):
         start = 6 - levels
-        norm = img.norm(dim=1).norm(dim=1).norm(dim=1) / (img.shape[2] + img.shape[3])
         for i in range(levels):
             img = self.activation(self.blocks[start + i](img))
 
+        # Minibatch stddev
+        minibatch_std = img.std(0).mean().expand(img.shape[0], 1, 4, 4)
+        img = torch.cat([img, minibatch_std], dim=1)
+
+        # Cont
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 512))
-        flat = torch.cat([flat, norm.view(7, 1)], dim=1)  # Norm input to avoid signal escalation
         return self.fc(flat)
 
 

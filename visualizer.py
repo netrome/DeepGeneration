@@ -25,8 +25,8 @@ class Visualizer:
             opts={
                 "xlabel": "Iteration",
                 "ylabel": "Loss",
-                "title": "Here is a title",
-                "legend": ["Loss G", "Loss D"],
+                "title": "Training progression",
+                "legend": ["pred real", "pred fale"],
             }
         )
         self.point = 0
@@ -37,17 +37,17 @@ class Visualizer:
     def update_batch(self, batch, name):
         self.vis.images(batch, win=name, opts={"caption": name}, nrow=8)
 
-    def update_loss(self, loss_G, loss_D):
+    def update_loss(self, pred_real, pred_fake):
         self.vis.line(
             X=torch.ones(1, 2)*self.point,
-            Y=torch.stack([loss_G, loss_D], dim=1),
+            Y=torch.stack([pred_real, pred_fake], dim=1),
             win=self.loss,
             update="append",
             opts={
                 "xlabel": "Iteration",
                 "ylabel": "Loss",
                 "title": "Here is a title",
-                "legend": ["Loss G", "Loss D"],
+                "legend": ["pred real", "pred fale"],
             }
         )
         self.point += 1
