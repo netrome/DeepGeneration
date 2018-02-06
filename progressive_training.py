@@ -33,7 +33,11 @@ if settings.CUDA:
 opt_G = torch.optim.Adam(G.parameters(), lr=settings.LEARNING_RATE)
 opt_D = torch.optim.Adam(D.parameters(), lr=settings.LEARNING_RATE)
 
-# Initialize training
+# Train with StageTrainer
 stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader, stage=6, conversion_depth=16)
-stage.steps(520)
+stage.visualize(visualizer)
+for i in range(10):
+    print("Chunk {}".format(i))
+    stage.steps(100)
+    stage.visualize(visualizer)
 

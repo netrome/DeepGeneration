@@ -35,7 +35,7 @@ class Visualizer:
         self.vis.image(img, win=name, opts={"caption": name})
 
     def update_batch(self, batch, name):
-        self.vis.images(batch, win=name, opts={"caption": name}, nrow=4)
+        self.vis.images(batch, win=name, opts={"caption": name}, nrow=8)
 
     def update_loss(self, loss_G, loss_D):
         self.vis.line(

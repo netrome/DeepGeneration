@@ -58,7 +58,7 @@ class TrivialDiscriminator(nn.Module):
 
         self.low_conv = nn.Conv2d(512, 512, 3, padding=1)
         self.deflate = nn.Conv2d(512, 512, 4)
-        self.fc = nn.Linear(512, 1)
+        self.fc = nn.Linear(513, 1)
 
         self.down1 = TrivialDownBlock(16, 32, self.activation)  # 256x256 -> 128x128
         self.down2 = TrivialDownBlock(32, 64, self.activation)  # 128x128 -> 64x64
@@ -71,11 +71,13 @@ class TrivialDiscriminator(nn.Module):
 
     def forward(self, img, levels=6):
         start = 6 - levels
+        norm = img.norm(dim=1).norm(dim=1).norm(dim=1) / (img.shape[2] + img.shape[3])
         for i in range(levels):
             img = self.activation(self.blocks[start + i](img))
 
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 512))
+        flat = torch.cat([flat, norm.view(7, 1)], dim=1)  # Norm input to avoid signal escalation
         return self.fc(flat)
 
 
