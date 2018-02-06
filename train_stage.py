@@ -56,6 +56,7 @@ s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
 stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader,
                              stage=s, conversion_depth=c, downscale_factor=d)
 if settings.WORKING_MODEL:
+    print(s)
     stage.toRGB.load_state_dict(torch.load("working_model/toRGB{}.params".format(s)))
     stage.fromRGB.load_state_dict(torch.load("working_model/fromRGB{}.params".format(s)))
     print("Loaded RGB layers too")
@@ -69,7 +70,7 @@ for i in range(settings.CHUNKS):
 # Save networks
 to_rgb, from_rgb = stage.get_rgb_layers()
 torch.save(to_rgb.state_dict(), "working_model/toRGB{}.params".format(s))
-torch.save(from_rgb.state_dict(), "working_model/toRGB{}.params".format(s))
+torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s))
 torch.save(G.state_dict(), "working_model/G.params")
 torch.save(D.state_dict(), "working_model/D.params")
 

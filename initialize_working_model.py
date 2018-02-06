@@ -4,8 +4,13 @@ from utils import progressive_networks
 import torch.nn as nn
 import settings
 
+import visualizer
+
 G = progressive_networks.TrivialGenerator()
 D = progressive_networks.TrivialDiscriminator()
+
+visualizer = visualizer.Visualizer()
+visualizer.initiate_windows()
 
 torch.save(G.state_dict(), "working_model/G.params")
 torch.save(D.state_dict(), "working_model/D.params")

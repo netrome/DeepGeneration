@@ -1,14 +1,27 @@
 from visdom import Visdom
 import torch
 
-random_image = torch.rand(1, 256, 256)
-random_batch = torch.rand(8, 1, 256, 256)
-
 
 class Visualizer:
     def __init__(self):
         self.vis = Visdom()
 
+        self.real_image = None
+        self.real_heatmap = None
+        self.real_concat = None
+        self.real_batch = None
+        self.fake_image = None
+        self.fake_concat = None
+        self.fake_heatmap = None
+        self.fake_batch = None
+
+        self.loss = None
+
+        self.point = 0
+
+    def initiate_windows(self):
+        random_image = torch.rand(1, 256, 256)
+        random_batch = torch.rand(8, 1, 256, 256)
         self.real_image = self.vis.image(random_image, win="real_img", opts={"caption": "Real image"})
         self.real_heatmap = self.vis.image(random_image, win="real_map")
         self.real_concat = self.vis.image(random_image, win="real_cat")
@@ -41,7 +54,7 @@ class Visualizer:
         self.vis.line(
             X=torch.ones(1, 2)*self.point,
             Y=torch.stack([pred_real, pred_fake], dim=1),
-            win=self.loss,
+            win="loss",
             update="append",
             opts={
                 "xlabel": "Iteration",
