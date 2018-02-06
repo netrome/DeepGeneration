@@ -3,8 +3,8 @@ import torch
 from utils import progressive_networks
 import torch.nn as nn
 import settings
-
 import visualizer
+import json
 
 G = progressive_networks.TrivialGenerator()
 D = progressive_networks.TrivialDiscriminator()
@@ -23,4 +23,9 @@ for i in settings.PROGRESSION:
     torch.save(to_rgb.state_dict(), "working_model/toRGB{}.params".format(i))
     torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(i))
 
+# Initialize state
+state = {"point": 0, "pred_real": 0, "pred_fake": 0}
+json.dump(state, open("working_model/state.json", "w"))
+# -----------------
 print("Saved networks and RGB layers in ./working_model")
+

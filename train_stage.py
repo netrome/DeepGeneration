@@ -24,6 +24,9 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           pin_memory=True,
                                           drop_last=True)
 visualizer = visualizer.Visualizer()
+state = json.load(open("working_model/state.json", "r"))
+visualizer.point = state["point"]
+
 
 # Define networks -------------------------------------------------
 G = progressive_networks.TrivialGenerator()
@@ -34,13 +37,6 @@ if settings.WORKING_MODEL:
     G.load_state_dict(torch.load("working_model/G.params"))
     D.load_state_dict(torch.load("working_model/D.params"))
 
-#if settings.D_PATH is not None:
-#    D.load_state_dict(torch.load(settings.D_PATH))
-#    print("Using discriminator at {}".format(settings.D_PATH))
-#
-#if settings.G_PATH is not None:
-#    G.load_state_dict(torch.load(settings.G_PATH))
-#    print("Using generator at {}".format(settings.G_PATH))
 
 # Export to cuda
 if settings.CUDA:
@@ -55,6 +51,9 @@ opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE)
 s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
 stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader,
                              stage=s, conversion_depth=c, downscale_factor=d)
+stage.pred_real += state["pred_real"]
+stage.pred_fake += state["pred_fake"]
+
 if settings.WORKING_MODEL:
     print(s)
     stage.toRGB.load_state_dict(torch.load("working_model/toRGB{}.params".format(s)))
@@ -74,3 +73,10 @@ torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s))
 torch.save(G.state_dict(), "working_model/G.params")
 torch.save(D.state_dict(), "working_model/D.params")
 
+# Save state
+state = {
+    "point": visualizer.point,
+    "pred_real": float(stage.pred_real),
+    "pred_fake": float(stage.pred_fake),
+}
+json.dump(state, open("working_model/state.json", "w"))
