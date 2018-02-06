@@ -76,8 +76,7 @@ class StageTrainer:
 
     def steps(self, n):
         print("Training for {} iterations".format(n))
-        pred_fake = self.pred_fake
-        pred_real = self.pred_real
+        pred_real = self.pred_real  # This may not always be updated
         for i, batch in enumerate(cyclic_data_iterator(self.data_loader, n)):
             batch = Variable(batch)
             if settings.CUDA:
