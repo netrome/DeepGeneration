@@ -72,10 +72,9 @@ class StageTrainer:
             visualizer.update_batch(
                 fake[:, 0].data.cpu().contiguous().view(batch_shape), "fake_batch")
 
-            visualizer.update_loss(self.pred_fake.data.cpu(), self.pred_real.data.cpu())
+            visualizer.update_loss(self.pred_real.data.cpu(), self.pred_fake.data.cpu())
 
     def steps(self, n):
-        print("Training for {} iterations".format(n))
         pred_real = self.pred_real  # This may not always be updated
         for i, batch in enumerate(cyclic_data_iterator(self.data_loader, n)):
             batch = Variable(batch)

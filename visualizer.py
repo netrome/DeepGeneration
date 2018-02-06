@@ -26,7 +26,7 @@ class Visualizer:
                 "xlabel": "Iteration",
                 "ylabel": "Loss",
                 "title": "Training progression",
-                "legend": ["pred real", "pred fale"],
+                "legend": ["pred real", "pred fake"],
             }
         )
         self.point = 0
@@ -47,7 +47,7 @@ class Visualizer:
                 "xlabel": "Iteration",
                 "ylabel": "Loss",
                 "title": "Here is a title",
-                "legend": ["pred real", "pred fale"],
+                "legend": ["pred real", "pred fake"],
             }
         )
         self.point += 1

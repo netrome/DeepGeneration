@@ -14,19 +14,23 @@ parser.add_argument("--bs", help="batch size", action="store", default="10")
 parser.add_argument("--stage", help="training stage", action="store", default="6")
 parser.add_argument("--steps", help="training steps", action="store", default="100")
 parser.add_argument("--chunks", help="training chunks", action="store", default="50")
+parser.add_argument("--nd", help="discriminator iterations", action="store", default="1")
 parser.add_argument("--load-D", help="load discriminator", action="store")
 parser.add_argument("--load-G", help="load discriminator", action="store")
+parser.add_argument("--wip", help="use working model", action="store_true")
 args = parser.parse_args()
 
 
 DATA_PATH = "~/Data/DeepGeneration1"
 
-D_PATH = args.load_D
-G_PATH = args.load_G
+#D_PATH = args.load_D
+#G_PATH = args.load_G
+
+WORKING_MODEL = args.wip
 
 BATCH_SIZE = int(args.bs)
 
-DISCRIMINATOR_ITERATIONS = 1
+DISCRIMINATOR_ITERATIONS = int(args.nd)
 
 LEARNING_RATE = float(args.lr)
 
@@ -44,7 +48,7 @@ PROGRESSION = {
     1: (256, 32),
     2: (256, 16),
     3: (128, 8),
-    4: (128, 4),
-    5: (128, 2),
-    6: (128, 1),
+    4: (64, 4),
+    5: (32, 2),
+    6: (16, 1),
 }
