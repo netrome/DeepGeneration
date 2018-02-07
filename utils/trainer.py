@@ -139,14 +139,16 @@ class StageTrainer:
 class FadeInTrainer(StageTrainer):
     def __init__(self, G, D, data_loader, stage=6,
                  conversion_depth=32, downscale_factor=2,
-                 next_cd=16, next_ds=1, increment=0.01):
-        super().__init__(G, D, data_loader, stage. conversion_depth, downscale_factor)
+                 next_cd=16, increment=0.01):
+        super().__init__(G, D, data_loader, stage, conversion_depth, downscale_factor)
+
+        self.next_cd = next_cd
 
         self.next_toRGB = nn.Conv2d(self.next_cd, 2, 1)
         self.next_fromRGB = nn.Conv2d(2, self.next_cd, 1)
 
         self.alpha = 0
-        self.increment = self.alpha
+        self.increment = increment
 
     def increment_alpha(self):
         self.alpha += self.increment
@@ -164,6 +166,9 @@ class FadeInTrainer(StageTrainer):
 
     def update_state(self):
         self.increment_alpha()
+
+    def get_rgb_layers(self):
+        return *super().get_rgb_layers(), self.next_toRGB, self.next_fromRGB
 
 
 

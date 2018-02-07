@@ -14,6 +14,7 @@ parser.add_argument("--nd", help="discriminator iterations", action="store", def
 parser.add_argument("--load-D", help="load discriminator", action="store")
 parser.add_argument("--load-G", help="load discriminator", action="store")
 parser.add_argument("--wip", help="use working model", action="store_true")
+parser.add_argument("--fade-in", help="fade in next layers", action="store_true")
 args = parser.parse_args()
 
 
@@ -30,6 +31,8 @@ LEARNING_RATE = float(args.lr)
 CUDA = args.cuda
 
 GRADIENT_PENALTY = args.gp
+
+FADE_IN = args.fade_in
 
 STAGE = int(args.stage)
 

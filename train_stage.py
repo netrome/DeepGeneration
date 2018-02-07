@@ -37,16 +37,22 @@ if settings.WORKING_MODEL:
     G.load_state_dict(torch.load("working_model/G.params"))
     D.load_state_dict(torch.load("working_model/D.params"))
 
-
 # Export to cuda
 if settings.CUDA:
     G.cuda()
     D.cuda()
 
-# Train with StageTrainer
+# Train with StageTrainer or FadeInTrainer
 s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
-stage = trainer.StageTrainer(G, D, data_loader,
-                             stage=s, conversion_depth=c, downscale_factor=d)
+if settings.FADE_IN:
+    print("Fading in next layer")
+    next_cd = settings.PROGRESSION[settings.STAGE + 1][0]
+    increment = 1/(settings.CHUNKS * settings.STEPS)
+    stage = trainer.FadeInTrainer(G, D, data_loader, stage=s, conversion_depth=c,
+                                  downscale_factor=d, next_cd=next_cd, increment=increment)
+else:
+    stage = trainer.StageTrainer(G, D, data_loader,
+                                 stage=s, conversion_depth=c, downscale_factor=d)
 stage.pred_real += state["pred_real"]
 stage.pred_fake += state["pred_fake"]
 
@@ -63,7 +69,13 @@ for i in range(settings.CHUNKS):
     stage.visualize(visualizer)
 
 # Save networks
-to_rgb, from_rgb = stage.get_rgb_layers()
+if settings.FADE_IN:
+    to_rgb, from_rgb, next_to_rgb, next_from_rgb = stage.get_rgb_layers()
+    torch.save(next_to_rgb.state_dict(), "working_model/toRGB{}.params".format(s + 1))
+    torch.save(next_from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s + 1))
+else:
+    to_rgb, from_rgb = stage.get_rgb_layers()
+
 torch.save(to_rgb.state_dict(), "working_model/toRGB{}.params".format(s))
 torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s))
 torch.save(G.state_dict(), "working_model/G.params")
