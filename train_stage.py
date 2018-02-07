@@ -88,3 +88,10 @@ state = {
     "pred_fake": float(stage.pred_fake),
 }
 json.dump(state, open("working_model/state.json", "w"))
+
+# Save optimizer state
+opt_G = stage.opt_G
+opt_D = stage.opt_D
+
+torch.save(opt_G.state_dict(), "working_model/optG.state")
+torch.save(opt_D.state_dict(), "working_model/optD.state")

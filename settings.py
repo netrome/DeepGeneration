@@ -5,12 +5,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--cuda", help="enable cuda", action="store_true")
 parser.add_argument("--gp", help="gradient penalty", action="store_true")
 parser.add_argument("--lr", help="spectral normalization", action="store", default="0.0001")
-parser.add_argument("--bs", help="batch size", action="store", default="10")
+parser.add_argument("--bs", help="batch size", action="store", default="8")
 
 parser.add_argument("--stage", help="training stage", action="store", default="6")
 parser.add_argument("--steps", help="training steps", action="store", default="100")
 parser.add_argument("--chunks", help="training chunks", action="store", default="50")
 parser.add_argument("--nd", help="discriminator iterations", action="store", default="1")
+parser.add_argument("--b1", help="beta1", action="store", default="0.5")
+parser.add_argument("--b2", help="beta2", action="store", default="0.99")
 parser.add_argument("--load-D", help="load discriminator", action="store")
 parser.add_argument("--load-G", help="load discriminator", action="store")
 parser.add_argument("--wip", help="use working model", action="store_true")
@@ -27,6 +29,8 @@ BATCH_SIZE = int(args.bs)
 DISCRIMINATOR_ITERATIONS = int(args.nd)
 
 LEARNING_RATE = float(args.lr)
+
+BETAS = (float(args.b1), float(args.b2))
 
 CUDA = args.cuda
 

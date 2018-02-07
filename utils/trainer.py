@@ -16,8 +16,6 @@ class StageTrainer:
     def __init__(self, G, D, data_loader, stage=6, conversion_depth=16, downscale_factor=1):
         self.G = G
         self.D = D
-        self.opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE)
-        self.opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE)
         self.data_loader = data_loader
         self.stage = stage
         self.conversion_depth = conversion_depth
@@ -36,8 +34,27 @@ class StageTrainer:
             self.pred_real = self.pred_real.cuda()
             self.pred_fake = self.pred_fake.cuda()
 
-        self.opt_toRGB = torch.optim.Adam(self.toRGB.parameters(), lr=settings.LEARNING_RATE)
-        self.opt_fromRGB = torch.optim.Adam(self.fromRGB.parameters(), lr=settings.LEARNING_RATE)
+        self.opt_G = torch.optim.Adamax(G.parameters(),
+                                        lr=settings.LEARNING_RATE,
+                                        betas=settings.BETAS
+                                        )
+        self.opt_D = torch.optim.Adamax(D.parameters(),
+                                        lr=settings.LEARNING_RATE,
+                                        betas=settings.BETAS
+                                        )
+        self.opt_toRGB = torch.optim.Adamax(self.toRGB.parameters(),
+                                            lr=settings.LEARNING_RATE,
+                                            betas=settings.BETAS
+                                            )
+        self.opt_fromRGB = torch.optim.Adamax(self.fromRGB.parameters(),
+                                              lr=settings.LEARNING_RATE,
+                                              betas=settings.BETAS
+                                              )
+
+        # Load optimizer states
+        if settings.WORKING_MODEL:
+            self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
+            self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
 
         self.update_state = 0
 
@@ -50,7 +67,7 @@ class StageTrainer:
             batch = Variable(batch)
             if settings.CUDA:
                 batch = batch.cuda()
-            batch = F.max_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
+            batch = F.avg_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
             fake = self.generate_fake(self.latent_space)
 
@@ -79,10 +96,8 @@ class StageTrainer:
             batch = Variable(batch)
             if settings.CUDA:
                 batch = batch.cuda()
-            batch = F.max_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
+            batch = F.avg_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
-            #fake = self.toRGB(self.G(self.latent_space, levels=self.stage))
-            #pred_fake = torch.mean(self.D(self.fromRGB(fake), levels=self.stage))
             fake = self.generate_fake(self.latent_space)
             pred_fake = self.predict(fake)
 
@@ -112,7 +127,9 @@ class StageTrainer:
                     grad_norm.sqrt_()
 
                     grad_loss = (grad_norm - 1).pow(2)
+                    #grad_loss = (grad_norm - 750).pow(2) / 562500
                     loss_D += 10 * grad_loss
+                    loss_D += 0.0001 * pred_real.pow(2)
 
                 self.opt_D.zero_grad()
                 self.opt_fromRGB.zero_grad()

@@ -9,11 +9,17 @@ import json
 G = progressive_networks.TrivialGenerator()
 D = progressive_networks.TrivialDiscriminator()
 
+opt_G = torch.optim.Adamax(G.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
+opt_D = torch.optim.Adamax(D.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
+
 visualizer = visualizer.Visualizer()
 visualizer.initiate_windows()
 
 torch.save(G.state_dict(), "working_model/G.params")
 torch.save(D.state_dict(), "working_model/D.params")
+
+torch.save(opt_G.state_dict(), "working_model/optG.state")
+torch.save(opt_D.state_dict(), "working_model/optD.state")
 
 for i in settings.PROGRESSION:
     c, d = settings.PROGRESSION[i]
