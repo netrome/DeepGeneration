@@ -52,7 +52,7 @@ class StageTrainer:
                 batch = batch.cuda()
             batch = F.max_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
-            fake = self.toRGB(self.G(self.latent_space, levels=self.stage))
+            fake = self.generate_fake(self.latent_space)
 
             batch_shape = list(batch.shape)
             batch_shape[1] = 1
@@ -124,7 +124,7 @@ class StageTrainer:
             self.pred_fake = pred_fake * 0.1 + 0.9 * self.pred_fake
 
             print("Iter {}/{}     ".format(i, n), end="\r")
-            self.update_state()
+            self.update_hook()
 
     def generate_fake(self, latent_vector):
         return self.toRGB(self.G(latent_vector, levels=self.stage))
@@ -132,7 +132,7 @@ class StageTrainer:
     def predict(self, image):
         return torch.mean(self.D(self.fromRGB(image), levels=self.stage))
 
-    def update_state(self):
+    def update_hook(self):
         pass
 
 
@@ -150,6 +150,10 @@ class FadeInTrainer(StageTrainer):
         self.alpha = 0
         self.increment = increment
 
+        if settings.CUDA:
+            self.next_toRGB.cuda()
+            self.next_fromRGB.cuda()
+
     def increment_alpha(self):
         self.alpha += self.increment
         self.alpha = min(self.alpha, 1)
@@ -162,13 +166,15 @@ class FadeInTrainer(StageTrainer):
 
     def predict(self, image):
         small = F.avg_pool2d(image, 2, stride=2)
-        return self.D.fade_in(image, small, self.alpha, levels=self.stage+1)
+        big = self.next_fromRGB(image)
+        small = self.fromRGB(small)
+        return torch.mean(self.D.fade_in(big, small, self.alpha, levels=self.stage+1))
 
-    def update_state(self):
+    def update_hook(self):
         self.increment_alpha()
 
     def get_rgb_layers(self):
-        return *super().get_rgb_layers(), self.next_toRGB, self.next_fromRGB
+        return (*super().get_rgb_layers(), self.next_toRGB, self.next_fromRGB)
 
 
 

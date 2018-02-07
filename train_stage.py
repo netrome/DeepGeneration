@@ -49,7 +49,7 @@ if settings.FADE_IN:
     next_cd = settings.PROGRESSION[settings.STAGE + 1][0]
     increment = 1/(settings.CHUNKS * settings.STEPS)
     stage = trainer.FadeInTrainer(G, D, data_loader, stage=s, conversion_depth=c,
-                                  downscale_factor=d, next_cd=next_cd, increment=increment)
+                                  downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
 else:
     stage = trainer.StageTrainer(G, D, data_loader,
                                  stage=s, conversion_depth=c, downscale_factor=d)
@@ -64,7 +64,7 @@ if settings.WORKING_MODEL:
 
 stage.visualize(visualizer)
 for i in range(settings.CHUNKS):
-    print("Chunk {}, stage {}                   ".format(i, settings.STAGE))
+    print("Chunk {}, stage {}, fade in: {}                   ".format(i, settings.STAGE, settings.FADE_IN))
     stage.steps(settings.STEPS)
     stage.visualize(visualizer)
 
