@@ -124,12 +124,47 @@ class StageTrainer:
             self.pred_fake = pred_fake * 0.1 + 0.9 * self.pred_fake
 
             print("Iter {}/{}     ".format(i, n), end="\r")
+            self.update_state()
 
     def generate_fake(self, latent_vector):
         return self.toRGB(self.G(latent_vector, levels=self.stage))
 
     def predict(self, image):
         return torch.mean(self.D(self.fromRGB(image), levels=self.stage))
+
+    def update_state(self):
+        pass
+
+
+class FadeInTrainer(StageTrainer):
+    def __init__(self, G, D, data_loader, stage=6,
+                 conversion_depth=32, downscale_factor=2,
+                 next_cd=16, next_ds=1, increment=0.01):
+        super().__init__(G, D, data_loader, stage. conversion_depth, downscale_factor)
+
+        self.next_toRGB = nn.Conv2d(self.next_cd, 2, 1)
+        self.next_fromRGB = nn.Conv2d(2, self.next_cd, 1)
+
+        self.alpha = 0
+        self.increment = self.alpha
+
+    def increment_alpha(self):
+        self.alpha += self.increment
+        self.alpha = min(self.alpha, 1)
+
+    def generate_fake(self, latent_vector):
+        big, small = self.G.fade_in(latent_vector, levels=self.stage+1)
+        small = self.toRGB(small)
+        big = self.next_toRGB(big)
+        return (1 - self.alpha) * small + self.alpha * big
+
+    def predict(self, image):
+        small = F.avg_pool2d(image, 2, stride=2)
+        return self.D.fade_in(image, small, self.alpha, levels=self.stage+1)
+
+    def update_state(self):
+        self.increment_alpha()
+
 
 
 

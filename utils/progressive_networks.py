@@ -50,6 +50,15 @@ class TrivialGenerator(nn.Module):
             img = F.normalize(self.activation(self.blocks[i](img)))
         return img
 
+    def fade_in(self, z, levels=6):
+        img = F.normalize(self.activation(self.inflate(z)))
+        img = F.normalize(self.activation(self.low_conv(img)))
+
+        for i in range(levels):
+            small = img
+            img = F.normalize(self.activation(self.blocks[i](img2)))
+        return img, small
+
 
 class TrivialDiscriminator(nn.Module):
     def __init__(self):
@@ -82,5 +91,24 @@ class TrivialDiscriminator(nn.Module):
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 512))
         return self.fc(flat)
+
+    def fade_in(self, img, small, alpha, levels=6):
+        start = 6 - levels
+        img = self.activation(self.blocks[start](img))
+        start += 1
+        levels -= 1
+        img = alpha * img + (1 - alpha) * small
+        for i in range(levels):
+            img = self.activation(self.blocks[start](img))
+
+        # Minibatch stddev
+        minibatch_std = img.std(0).mean().expand(img.shape[0], 1, 4, 4)
+        img = torch.cat([img, minibatch_std], dim=1)
+
+        # Cont
+        img = self.activation(self.low_conv(img))
+        flat = self.activation(self.deflate(img).view(-1, 512))
+        return self.fc(flat)
+
 
 
