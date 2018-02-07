@@ -43,13 +43,9 @@ if settings.CUDA:
     G.cuda()
     D.cuda()
 
-# Add optimizer
-opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE)
-opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE)
-
 # Train with StageTrainer
 s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
-stage = trainer.StageTrainer(G, D, opt_G, opt_D, data_loader,
+stage = trainer.StageTrainer(G, D, data_loader,
                              stage=s, conversion_depth=c, downscale_factor=d)
 stage.pred_real += state["pred_real"]
 stage.pred_fake += state["pred_fake"]
@@ -62,7 +58,7 @@ if settings.WORKING_MODEL:
 
 stage.visualize(visualizer)
 for i in range(settings.CHUNKS):
-    print("Chunk {}                   ".format(i))
+    print("Chunk {}, stage {}                   ".format(i, settings.STAGE))
     stage.steps(settings.STEPS)
     stage.visualize(visualizer)
 

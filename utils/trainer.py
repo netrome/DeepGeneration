@@ -13,12 +13,11 @@ from torch.autograd import Variable
 
 
 class StageTrainer:
-
-    def __init__(self, G, D, opt_G, opt_D, data_loader, stage=6, conversion_depth=16, downscale_factor=1):
+    def __init__(self, G, D, data_loader, stage=6, conversion_depth=16, downscale_factor=1):
         self.G = G
         self.D = D
-        self.opt_D = opt_D
-        self.opt_G = opt_G
+        self.opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE)
+        self.opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE)
         self.data_loader = data_loader
         self.stage = stage
         self.conversion_depth = conversion_depth
@@ -82,8 +81,10 @@ class StageTrainer:
                 batch = batch.cuda()
             batch = F.max_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
-            fake = self.toRGB(self.G(self.latent_space, levels=self.stage))
-            pred_fake = torch.mean(self.D(self.fromRGB(fake), levels=self.stage))
+            #fake = self.toRGB(self.G(self.latent_space, levels=self.stage))
+            #pred_fake = torch.mean(self.D(self.fromRGB(fake), levels=self.stage))
+            fake = self.generate_fake(self.latent_space)
+            pred_fake = self.predict(fake)
 
             # Update G
             if self.update_state == settings.DISCRIMINATOR_ITERATIONS:
@@ -98,7 +99,7 @@ class StageTrainer:
 
             else:
                 self.update_state += 1
-                pred_real = torch.mean(self.D(self.fromRGB(batch), levels=self.stage))
+                pred_real = self.predict(batch)
                 loss_D = pred_fake - pred_real
 
                 if settings.GRADIENT_PENALTY:
@@ -123,6 +124,12 @@ class StageTrainer:
             self.pred_fake = pred_fake * 0.1 + 0.9 * self.pred_fake
 
             print("Iter {}/{}     ".format(i, n), end="\r")
+
+    def generate_fake(self, latent_vector):
+        return self.toRGB(self.G(latent_vector, levels=self.stage))
+
+    def predict(self, image):
+        return torch.mean(self.D(self.fromRGB(image), levels=self.stage))
 
 
 
