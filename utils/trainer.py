@@ -154,7 +154,7 @@ class FadeInTrainer(StageTrainer):
 
     def generate_fake(self, latent_vector):
         big, small = self.G.fade_in(latent_vector, levels=self.stage+1)
-        small = self.toRGB(small)
+        small = F.upsample(self.toRGB(small), scale_factor=2)
         big = self.next_toRGB(big)
         return (1 - self.alpha) * small + self.alpha * big
 
