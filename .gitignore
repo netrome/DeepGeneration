@@ -1,6 +1,7 @@
 .idea
 *.params
 *.json
+*.pyc
 __pycache__
 working_model
 checkpoints
