@@ -4,6 +4,7 @@ import torch
 import torch.utils.data
 
 import settings
+import time
 from utils import datasets
 from utils import progressive_networks
 from utils import trainer
@@ -70,13 +71,16 @@ def main():
     # Save networks
     if settings.FADE_IN:
         to_rgb, from_rgb, next_to_rgb, next_from_rgb = stage.get_rgb_layers()
+        print("Saving extra rgb layers, {}".format(time.ctime()))
         torch.save(next_to_rgb.state_dict(), "working_model/toRGB{}.params".format(s + 1))
         torch.save(next_from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s + 1))
     else:
         to_rgb, from_rgb = stage.get_rgb_layers()
 
+    print("Saving rgb layers, {}".format(time.ctime()))
     torch.save(to_rgb.state_dict(), "working_model/toRGB{}.params".format(s))
     torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s))
+    print("Saving networks, {}".format(time.ctime()))
     torch.save(G.state_dict(), "working_model/G.params")
     torch.save(D.state_dict(), "working_model/D.params")
 
@@ -86,12 +90,14 @@ def main():
         "pred_real": float(stage.pred_real),
         "pred_fake": float(stage.pred_fake),
     }
+    print("Saving state, {}".format(time.ctime()))
     json.dump(state, open("working_model/state.json", "w"))
 
     # Save optimizer state
     opt_G = stage.opt_G
     opt_D = stage.opt_D
 
+    print("Saving optimizer state, {}".format(time.ctime()))
     torch.save(opt_G.state_dict(), "working_model/optG.state")
     torch.save(opt_D.state_dict(), "working_model/optD.state")
 

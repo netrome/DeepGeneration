@@ -17,10 +17,13 @@ parser.add_argument("--load-D", help="load discriminator", action="store")
 parser.add_argument("--load-G", help="load discriminator", action="store")
 parser.add_argument("--wip", help="use working model", action="store_true")
 parser.add_argument("--fade-in", help="fade in next layers", action="store_true")
+parser.add_argument("--config", help="external configuration", action="store")
 args = parser.parse_args()
 
 
 DATA_PATH = "~/Data/DeepGeneration1"
+
+CONFIG_PATH = args.config
 
 WORKING_MODEL = args.wip
 
