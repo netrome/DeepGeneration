@@ -10,6 +10,7 @@ def update_settings(stage, fade_in, batch_size, learning_rate, chunks, steps):
     settings.CHUNKS = chunks
     settings.STEPS = steps
     settings.FADE_IN = fade_in
+    settings.sync_settings()
 
 # Force progressive training
 initialize_working_model.main()

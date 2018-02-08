@@ -10,6 +10,8 @@ import settings
 from utils.utils import cyclic_data_iterator
 
 from torch.autograd import Variable
+from torchvision.utils import make_grid, save_image
+import time
 
 
 class StageTrainer:
@@ -24,6 +26,7 @@ class StageTrainer:
         self.toRGB = nn.Conv2d(self.conversion_depth, 2, 1)
         self.fromRGB = nn.Conv2d(2, self.conversion_depth, 1)
         self.latent_space = Variable(torch.FloatTensor(settings.BATCH_SIZE, 512, 1, 1))
+        self.latent_ref_point = Variable(torch.FloatTensor(16, 512, 1, 1))
         self.pred_real = Variable(torch.zeros(1))
         self.pred_fake = Variable(torch.zeros(1))
 
@@ -31,6 +34,7 @@ class StageTrainer:
             self.toRGB.cuda()
             self.fromRGB.cuda()
             self.latent_space = self.latent_space.cuda()
+            self.latent_ref_point = self.latent_ref_point.cuda()
             self.pred_real = self.pred_real.cuda()
             self.pred_fake = self.pred_fake.cuda()
 
@@ -60,6 +64,18 @@ class StageTrainer:
 
     def get_rgb_layers(self):
         return self.toRGB, self.fromRGB
+
+    def save_fake_reference_batch(self, point):
+        if not settings.WORKING_MODEL:
+            raise RuntimeError("Won't save reference batch without working model")
+        torch.manual_seed(1337)
+        self.latent_ref_point.data.normal_()
+        torch.manual_seed(int(time.clock()*1e6))
+        fake = self.generate_fake(self.latent_ref_point)
+        batch_shape = list(fake.shape)
+        batch_shape[1] = 1
+        single = make_grid(fake[:, 0].data.cpu().contiguous().view(batch_shape))
+        save_image(single, "working_model/timelapse/fake_batch{}.png".format(point))
 
     def visualize(self, visualizer):
         # Get single batch using for loop

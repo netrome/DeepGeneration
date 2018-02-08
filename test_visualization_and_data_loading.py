@@ -1,7 +1,7 @@
-import utils.datasets as data
-import visualizer
 import torch
 
+import utils.datasets as data
+from utils import visualizer
 
 dataset = data.SyntheticFullyAnnotated("~/Data/DeepGeneration1")
 visualizer = visualizer.Visualizer()

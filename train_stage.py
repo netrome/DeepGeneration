@@ -1,17 +1,13 @@
-import settings
+import json
 
+import torch
+import torch.utils.data
+
+import settings
 from utils import datasets
 from utils import progressive_networks
 from utils import trainer
-import utils.utils as utils
-
-from torch.autograd import Variable
-from visualizer import Visualizer
-
-import torch.utils.data
-import torch
-
-import json
+from utils.visualizer import Visualizer
 
 
 def main():
@@ -66,6 +62,9 @@ def main():
     for i in range(settings.CHUNKS):
         print("Chunk {}, stage {}, fade in: {}                   ".format(i, settings.STAGE, settings.FADE_IN))
         stage.steps(settings.STEPS)
+        if settings.WORKING_MODEL:
+            print("Saved timelapse visualization")
+            stage.save_fake_reference_batch(visualizer.point)
         stage.visualize(visualizer)
 
     # Save networks

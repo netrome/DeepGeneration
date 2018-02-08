@@ -52,3 +52,17 @@ PROGRESSION = {
     5: (32, 2),
     6: (16, 1),
 }
+
+
+def sync_settings():
+    args.bs = BATCH_SIZE
+    args.nd = DISCRIMINATOR_ITERATIONS
+    args.lr = LEARNING_RATE
+    args.b1, args.b2 = BETAS[0], BETAS[1]
+    args.cuda = CUDA
+    args.gp = GRADIENT_PENALTY
+    args.fade_in = FADE_IN
+    args.stage = STAGE
+    args.chunks = CHUNKS
+    args.steps = STEPS
+    args.wip = WORKING_MODEL

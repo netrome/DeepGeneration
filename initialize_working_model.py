@@ -1,11 +1,12 @@
 """ Initializes new networks and RGB layers, and stores them in working_model """
-import torch
-from utils import progressive_networks
-import torch.nn as nn
-import settings
 import json
 
-from visualizer import Visualizer
+import torch
+import torch.nn as nn
+
+import settings
+from utils import progressive_networks
+from utils.visualizer import Visualizer
 
 
 def main():
