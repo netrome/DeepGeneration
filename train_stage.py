@@ -100,6 +100,7 @@ def main():
     print("Saving optimizer state, {}".format(time.ctime()))
     torch.save(opt_G.state_dict(), "working_model/optG.state")
     torch.save(opt_D.state_dict(), "working_model/optD.state")
+    print("Finished with main")
 
 if __name__ == "__main__":
     main()
