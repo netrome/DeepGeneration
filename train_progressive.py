@@ -2,6 +2,15 @@ import settings
 import train_stage
 import initialize_working_model
 import csv
+import signal
+
+
+# Ugly hack to trap Vlad when he appears
+# ...Vlad is the name of a bug that appeared during some longer trainings,
+#  he causes segmentation faults that crashes the training without any other observable effects
+def catch_vlad(signum, frame):
+    print(">>> Vlad was here! <<<")
+signal.signal(signal.SIGSEGV, catch_vlad)
 
 
 def update_settings(stage, fade_in, batch_size, learning_rate, chunks, steps):

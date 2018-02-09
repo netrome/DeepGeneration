@@ -1,3 +1,6 @@
 stage, fade in, batch size, learning rate, chunks, steps
-1, False, 16, 0.0001, 150, 100
-1, True , 16, 0.0001, 10, 100
+1, False, 16, 0.0001, 10, 100
+1, False, 16, 0.0001, 10, 100
+1, False, 16, 0.0001, 10, 100
+1, False, 16, 0.0001, 10, 100
+1, False, 16, 0.0001, 10, 100
