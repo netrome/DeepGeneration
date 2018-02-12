@@ -157,7 +157,8 @@ class StageTrainer:
             self.pred_real = pred_real * 0.1 + 0.9 * self.pred_real
             self.pred_fake = pred_fake * 0.1 + 0.9 * self.pred_fake
 
-            print("Iter {}/{}     ".format(i, n), end="\r")
+            if i % 10 == 9:
+                print("Iter {}/{}     ".format(i+1, n), end="\r")
             self.update_hook()
 
     def generate_fake(self, latent_vector):

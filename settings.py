@@ -35,6 +35,8 @@ BATCH_SIZE = int(args.bs)
 DISCRIMINATOR_ITERATIONS = int(args.nd)
 
 LEARNING_RATE = float(args.lr)
+if EQUALIZE_WEIGHTS:
+    LEARNING_RATE *= 20
 
 BETAS = (float(args.b1), float(args.b2))
 
