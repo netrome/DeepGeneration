@@ -51,9 +51,9 @@ STEPS = int(args.steps)
 
 # Stage -> depth + downscale factor
 PROGRESSION = {
-    1: (256, 32),
-    2: (256, 16),
-    3: (128, 8),
+    1: (112, 32),
+    2: (96, 16),
+    3: (80, 8),
     4: (64, 4),
     5: (32, 2),
     6: (16, 1),

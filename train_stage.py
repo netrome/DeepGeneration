@@ -28,8 +28,8 @@ def main():
     visualizer.point = state["point"]
 
     # Define networks -------------------------------------------------
-    G = progressive_networks.TrivialGenerator()
-    D = progressive_networks.TrivialDiscriminator()
+    G = progressive_networks.TrivialGeneratorLight()
+    D = progressive_networks.TrivialDiscriminatorLight()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
