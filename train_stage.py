@@ -51,8 +51,8 @@ def main():
         print("Fading in next layer")
         next_cd = settings.PROGRESSION[settings.STAGE + 1][0]
         increment = 1/(settings.CHUNKS * settings.STEPS)
-        stage = trainer.StochasticFadeInTrainer(G, D, data_loader, stage=s, conversion_depth=c,
-                                                downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
+        stage = trainer.FadeInLossTrainer(G, D, data_loader, stage=s, conversion_depth=c,
+                                          downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
     else:
         stage = trainer.StageTrainer(G, D, data_loader,
                                      stage=s, conversion_depth=c, downscale_factor=d)
