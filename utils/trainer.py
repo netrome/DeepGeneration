@@ -274,6 +274,9 @@ class FadeInLossTrainer(FadeInTrainer):
         big = self.next_toRGB(big)
         return big, small
 
+    def predict(self, image):
+        return torch.mean(self.D(self.next_fromRGB(image), levels=self.stage+1))
+
     def steps(self, n):
         pred_real = self.pred_real  # This may not always be updated
         for i, batch in enumerate(cyclic_data_iterator(self.data_loader, n)):
