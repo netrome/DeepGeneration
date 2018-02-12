@@ -292,7 +292,7 @@ class FadeInLossTrainer(FadeInTrainer):
             # Update G
             if self.update_state == settings.DISCRIMINATOR_ITERATIONS:
                 self.update_state = 0
-                loss_G = - pred_fake * self.alpha + \
+                loss_G = - pred_fake + \
                          torch.mean(torch.abs(big - small.detach())) * (1 - self.alpha)
 
                 self.opt_G.zero_grad()
