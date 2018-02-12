@@ -9,6 +9,7 @@ from utils import datasets
 from utils import progressive_networks
 from utils import trainer
 from utils.visualizer import Visualizer
+import utils.weight_scaling as ws
 
 
 def main():
@@ -29,6 +30,10 @@ def main():
     # Define networks -------------------------------------------------
     G = progressive_networks.TrivialGenerator()
     D = progressive_networks.TrivialDiscriminator()
+
+    if settings.EQUALIZE_WEIGHTS:
+        ws.scale_network(D, 0.2)
+        ws.scale_network(G, 0.2)
 
     if settings.WORKING_MODEL:
         print("Using model parameters in ./working_model")

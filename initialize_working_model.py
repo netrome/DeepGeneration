@@ -7,11 +7,16 @@ import torch.nn as nn
 import settings
 from utils import progressive_networks
 from utils.visualizer import Visualizer
+import utils.weight_scaling as ws
 
 
 def main():
     G = progressive_networks.TrivialGenerator()
     D = progressive_networks.TrivialDiscriminator()
+
+    if settings.EQUALIZE_WEIGHTS:
+        ws.scale_network(D, 0.2)
+        ws.scale_network(G, 0.2)
 
     opt_G = torch.optim.Adamax(G.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
     opt_D = torch.optim.Adamax(D.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
