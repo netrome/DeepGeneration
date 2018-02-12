@@ -12,6 +12,7 @@ from utils.utils import cyclic_data_iterator
 from torch.autograd import Variable
 from torchvision.utils import make_grid, save_image
 import time
+import random
 
 
 class StageTrainer:
@@ -167,6 +168,49 @@ class StageTrainer:
 
     def update_hook(self):
         pass
+
+
+class StochasticFadeInTrainer(StageTrainer):
+    def __init__(self, G, D, data_loader, stage=6,
+                 conversion_depth=32, downscale_factor=2,
+                 next_cd=16, increment=0.01):
+        super().__init__(G, D, data_loader, stage, conversion_depth, downscale_factor)
+
+        self.next_cd = next_cd
+
+        self.next_toRGB = nn.Conv2d(self.next_cd, 2, 1)
+        self.next_fromRGB = nn.Conv2d(2, self.next_cd, 1)
+
+        self.alpha = 0
+        self.increment = increment
+
+        if settings.CUDA:
+            self.next_toRGB.cuda()
+            self.next_fromRGB.cuda()
+
+    def increment_alpha(self):
+        self.alpha += self.increment
+        self.alpha = min(self.alpha, 1)
+
+    def generate_fake(self, latent_vector):
+        if random.random() < self.alpha:
+            big = self.next_toRGB(self.G(latent_vector, levels=self.stage + 1))
+        else:
+            big = F.upsample(self.toRGB(self.G(latent_vector, levels=self.stage)), scale_factor=2)
+        return big
+
+    def predict(self, image):
+        if random.random() < self.alpha:
+            pred = torch.mean(self.D(self.next_fromRGB(image), levels=self.stage+1))
+        else:
+            pred = torch.mean(self.D(self.fromRGB(F.avg_pool2d(image, 2, stride=2)), levels=self.stage))
+        return pred
+
+    def update_hook(self):
+        self.increment_alpha()
+
+    def get_rgb_layers(self):
+        return (*super().get_rgb_layers(), self.next_toRGB, self.next_fromRGB)
 
 
 class FadeInTrainer(StageTrainer):
