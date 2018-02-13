@@ -39,7 +39,7 @@ def main():
         torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(i))
 
     # Initialize state
-    state = {"point": 0, "pred_real": 0, "pred_fake": 0}
+    state = {"point": 0, "pred_real": 0, "pred_fake": 0, "history_real": [], "history_fake": []}
     json.dump(state, open("working_model/state.json", "w"))
     # -----------------
     print("Saved networks and RGB layers in ./working_model")

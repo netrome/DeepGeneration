@@ -11,6 +11,8 @@ from utils import trainer
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
 
+import gc
+
 
 def main():
     print("\nInitiating training with the following setting ----")
@@ -51,8 +53,8 @@ def main():
         print("Fading in next layer")
         next_cd = settings.PROGRESSION[settings.STAGE + 1][0]
         increment = 1/(settings.CHUNKS * settings.STEPS)
-        stage = trainer.FadeInLossTrainer(G, D, data_loader, stage=s, conversion_depth=c,
-                                          downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
+        stage = trainer.FadeInTrainer(G, D, data_loader, stage=s, conversion_depth=c,
+                                      downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
     else:
         stage = trainer.StageTrainer(G, D, data_loader,
                                      stage=s, conversion_depth=c, downscale_factor=d)
@@ -68,6 +70,9 @@ def main():
     for i in range(settings.CHUNKS):
         print("Chunk {}, stage {}, fade in: {}                   ".format(i, settings.STAGE, settings.FADE_IN))
         stage.steps(settings.STEPS)
+        gc.collect()  # Prevent memory leaks (?)
+        state["history_real"].append(float(stage.pred_real))
+        state["history_fake"].append(float(stage.pred_fake))
         if settings.WORKING_MODEL:
             print("Saved timelapse visualization")
             stage.save_fake_reference_batch(visualizer.point)
@@ -90,11 +95,9 @@ def main():
     torch.save(D.state_dict(), "working_model/D.params")
 
     # Save state
-    state = {
-        "point": visualizer.point,
-        "pred_real": float(stage.pred_real),
-        "pred_fake": float(stage.pred_fake),
-    }
+    state["point"] = visualizer.point
+    state["pred_real"] = float(stage.pred_real)
+    state["pred_fake"] = float(stage.pred_fake)
     print("Saving state, {}".format(time.ctime()))
     json.dump(state, open("working_model/state.json", "w"))
 
