@@ -146,7 +146,8 @@ class StageTrainer:
                     grad_loss = (grad_norm - 1).pow(2)
                     #grad_loss = (grad_norm - 750).pow(2) / 562500
                     loss_D += 10 * grad_loss
-                    loss_D += 0.0001 * pred_real.pow(2)
+
+                loss_D += 0.001 * pred_real.pow(2)  # Drift loss
 
                 self.opt_D.zero_grad()
                 self.opt_fromRGB.zero_grad()
