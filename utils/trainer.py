@@ -255,5 +255,81 @@ class FadeInTrainer(StageTrainer):
         return (*super().get_rgb_layers(), self.next_toRGB, self.next_fromRGB)
 
 
+# Ugly code for concept test, needs to be refactored if it gives good results
+class FadeInLossTrainer(FadeInTrainer):
+    def __init__(self, G, D, data_loader, stage=6,
+                 conversion_depth=32, downscale_factor=2,
+                 next_cd=16, increment=0.01):
+        super().__init__(G, D, data_loader, stage,
+                         conversion_depth, downscale_factor,
+                         next_cd, increment)
 
+    def generate_fake(self, latent_vector):
+        big, small = self.generate_fakes(latent_vector)
+        return (1 - self.alpha) * small + self.alpha * big
+
+    def generate_fakes(self, latent_vector):
+        big, small = self.G.fade_in(latent_vector, levels=self.stage+1)
+        small = F.upsample(self.toRGB(small), scale_factor=2)
+        big = self.next_toRGB(big)
+        return big, small
+
+    def predict(self, image):
+        return torch.mean(self.D(self.next_fromRGB(image), levels=self.stage+1))
+
+    def steps(self, n):
+        pred_real = self.pred_real  # This may not always be updated
+        for i, batch in enumerate(cyclic_data_iterator(self.data_loader, n)):
+            batch = Variable(batch)
+            if settings.CUDA:
+                batch = batch.cuda()
+            batch = F.avg_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
+            self.latent_space.data.normal_()
+            big, small = self.generate_fakes(self.latent_space)
+            fake = (1 - self.alpha) * small + self.alpha * big
+            pred_fake = self.predict(fake)
+
+            # Update G
+            if self.update_state == settings.DISCRIMINATOR_ITERATIONS:
+                self.update_state = 0
+                loss_G = - pred_fake + \
+                         torch.mean(torch.abs(big - small.detach())) * (1 - self.alpha)
+
+                self.opt_G.zero_grad()
+                self.opt_toRGB.zero_grad()
+                loss_G.backward()
+                self.opt_G.step()
+                self.opt_toRGB.step()
+
+            else:
+                self.update_state += 1
+                pred_real = self.predict(batch)
+                loss_D = pred_fake - pred_real
+
+                if settings.GRADIENT_PENALTY:
+                    grads = torch.autograd.grad(torch.mean(pred_fake), self.D.parameters(),
+                                                create_graph=True, allow_unused=True)
+                    grad_norm = 0
+                    for grad in grads:
+                        if grad is not None:
+                            grad_norm += grad.pow(2).sum()
+                    grad_norm.sqrt_()
+
+                    grad_loss = (grad_norm - 1).pow(2)
+                    #grad_loss = (grad_norm - 750).pow(2) / 562500
+                    loss_D += 10 * grad_loss
+                    loss_D += 0.0001 * pred_real.pow(2)
+
+                self.opt_D.zero_grad()
+                self.opt_fromRGB.zero_grad()
+                loss_D.backward()
+                self.opt_fromRGB.step()
+                self.opt_D.step()
+
+            self.pred_real = pred_real * 0.1 + 0.9 * self.pred_real
+            self.pred_fake = pred_fake * 0.1 + 0.9 * self.pred_fake
+
+            if i % 10 == 9:
+                print("Iter {}/{}     ".format(i+1, n), end="\r")
+            self.update_hook()
 
