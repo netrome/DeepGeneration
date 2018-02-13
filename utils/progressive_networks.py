@@ -225,7 +225,7 @@ class TrivialDiscriminatorLight(nn.Module):
         return self.fc(flat)
 
 
-# Sampling networks --------------------------------------------------------------
+# Sampling networks, similar to original article ------------------------------------
 
 class SamplingGeneratorLight(nn.Module):
     def __init__(self):
@@ -260,6 +260,12 @@ class SamplingGeneratorLight(nn.Module):
             small = img
             img = self.blocks[i](small)
         return img, small
+
+    def freeze_until(self, levels=6):
+        pass  # TODO
+
+    def unfreeze_all(self):
+        pass  # TODO
 
 
 class SamplingDiscriminatorLight(nn.Module):
