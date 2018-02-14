@@ -58,10 +58,11 @@ class StageTrainer:
                                               betas=settings.BETAS
                                               )
 
+        # Don't load optimizer state
         # Load optimizer states, except for during fade in (which is freeze in now)
-        if settings.WORKING_MODEL and not settings.FADE_IN:
-            self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
-            self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
+        #if settings.WORKING_MODEL and not settings.FADE_IN:
+        #    self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
+        #    self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
 
         self.update_state = 0
 

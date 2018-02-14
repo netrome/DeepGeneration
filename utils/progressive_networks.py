@@ -270,6 +270,11 @@ class SamplingGeneratorLight(nn.Module):
             for param in self.blocks[i].parameters():
                 param.requires_grad = False
 
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[i].parameters():
+                param.requires_grad = False
+
     def unfreeze_all(self):
         for param in self.parameters():
             param.requires_grad = True
@@ -335,6 +340,11 @@ class SamplingDiscriminatorLight(nn.Module):
         start = 6 - levels
         for i in range(levels):
             for param in self.blocks[start + i].parameters():
+                param.requires_grad = False
+
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[5 - i].parameters():
                 param.requires_grad = False
 
     def unfreeze_all(self):

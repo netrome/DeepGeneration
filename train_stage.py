@@ -57,6 +57,10 @@ def main():
         D.freeze_until(s)
         s += 1
 
+    # Freeze idle layers - did not stop vlad
+    #G.freeze_idle(s)
+    #D.freeze_idle(s)
+
     stage = trainer.StageTrainer(G, D, data_loader,
                                  stage=s, conversion_depth=c, downscale_factor=d)
     stage.pred_real += state["pred_real"]
@@ -108,12 +112,12 @@ def main():
     json.dump(state, open("working_model/state.json", "w"))
 
     # Save optimizer state
-    opt_G = stage.opt_G
-    opt_D = stage.opt_D
+    #opt_G = stage.opt_G
+    #opt_D = stage.opt_D
 
-    print("Saving optimizer state, {}".format(time.ctime()))
-    torch.save(opt_G.state_dict(), "working_model/optG.state")
-    torch.save(opt_D.state_dict(), "working_model/optD.state")
+    #print("Saving optimizer state, {}".format(time.ctime()))
+    #torch.save(opt_G.state_dict(), "working_model/optG.state")
+    #torch.save(opt_D.state_dict(), "working_model/optD.state")
     print("Finished with main")
 
 if __name__ == "__main__":
