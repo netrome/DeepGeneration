@@ -39,11 +39,13 @@ class StageTrainer:
             self.pred_real = self.pred_real.cuda()
             self.pred_fake = self.pred_fake.cuda()
 
-        self.opt_G = torch.optim.Adamax(G.parameters(),
+        params = [param for param in G.parameters() if param.requires_grad]
+        self.opt_G = torch.optim.Adamax(params,
                                         lr=settings.LEARNING_RATE,
                                         betas=settings.BETAS
                                         )
-        self.opt_D = torch.optim.Adamax(D.parameters(),
+        params = [param for param in D.parameters() if param.requires_grad]
+        self.opt_D = torch.optim.Adamax(params,
                                         lr=settings.LEARNING_RATE,
                                         betas=settings.BETAS
                                         )
@@ -56,8 +58,8 @@ class StageTrainer:
                                               betas=settings.BETAS
                                               )
 
-        # Load optimizer states
-        if settings.WORKING_MODEL:
+        # Load optimizer states, except for during fade in (which is freeze in now)
+        if settings.WORKING_MODEL and not settings.FADE_IN:
             self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
             self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
 
@@ -135,7 +137,8 @@ class StageTrainer:
                 loss_D = pred_fake - pred_real
 
                 if settings.GRADIENT_PENALTY:
-                    grads = torch.autograd.grad(torch.mean(pred_fake), self.D.parameters(),
+                    params = [param for param in self.D.parameters() if param.requires_grad]
+                    grads = torch.autograd.grad(torch.mean(pred_fake), params,
                                                 create_graph=True, allow_unused=True)
                     grad_norm = 0
                     for grad in grads:
