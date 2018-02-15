@@ -54,7 +54,7 @@ def main():
         c = settings.PROGRESSION[settings.STAGE + 1][0]
         d = int(d/2)
         G.freeze_until(s)
-        D.freeze_until(s)
+        #D.freeze_until(s)
         s += 1
 
     # Freeze idle layers - did not stop vlad

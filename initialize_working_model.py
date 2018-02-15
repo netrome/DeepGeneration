@@ -8,6 +8,7 @@ import settings
 from utils import progressive_networks
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
+import utils.utils as u
 
 
 def main():
@@ -17,6 +18,9 @@ def main():
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
+
+    #G.apply(u.near_identity_weight_init)
+    #D.apply(u.near_identity_weight_init)
 
     #opt_G = torch.optim.Adamax(G.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
     #opt_D = torch.optim.Adamax(D.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
