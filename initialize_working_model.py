@@ -11,15 +11,15 @@ import utils.weight_scaling as ws
 
 
 def main():
-    G = progressive_networks.SamplingGeneratorLight()
-    D = progressive_networks.SamplingDiscriminatorLight()
+    G = progressive_networks.TrivialGeneratorLight()
+    D = progressive_networks.TrivialDiscriminatorLight()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
 
-    opt_G = torch.optim.Adamax(G.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
-    opt_D = torch.optim.Adamax(D.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
+    #opt_G = torch.optim.Adamax(G.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
+    #opt_D = torch.optim.Adamax(D.parameters(), settings.LEARNING_RATE, betas=settings.BETAS)
 
     visualizer = Visualizer()
     visualizer.initiate_windows()

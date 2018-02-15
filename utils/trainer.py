@@ -27,7 +27,7 @@ class StageTrainer:
         self.toRGB = nn.Conv2d(self.conversion_depth, 2, 1)
         self.fromRGB = nn.Conv2d(2, self.conversion_depth, 1)
         self.latent_space = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
-        self.latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
+        self.latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1), volatile=True)
         self.pred_real = Variable(torch.zeros(1))
         self.pred_fake = Variable(torch.zeros(1))
 
@@ -39,13 +39,13 @@ class StageTrainer:
             self.pred_real = self.pred_real.cuda()
             self.pred_fake = self.pred_fake.cuda()
 
-        params = [param for param in G.parameters() if param.requires_grad]
-        self.opt_G = torch.optim.Adamax(params,
+        params_G = [param for param in G.parameters() if param.requires_grad]
+        self.opt_G = torch.optim.Adamax(params_G,
                                         lr=settings.LEARNING_RATE,
                                         betas=settings.BETAS
                                         )
-        params = [param for param in D.parameters() if param.requires_grad]
-        self.opt_D = torch.optim.Adamax(params,
+        params_D = [param for param in D.parameters() if param.requires_grad]
+        self.opt_D = torch.optim.Adamax(params_D,
                                         lr=settings.LEARNING_RATE,
                                         betas=settings.BETAS
                                         )
@@ -84,12 +84,12 @@ class StageTrainer:
     def visualize(self, visualizer):
         # Get single batch using for loop
         for batch in cyclic_data_iterator(self.data_loader, 1):
-            batch = Variable(batch)
+            batch = Variable(batch, volatile=True)  # No backprop here
             if settings.CUDA:
                 batch = batch.cuda()
             batch = F.avg_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
-            fake = self.generate_fake(self.latent_space)
+            fake = self.generate_fake(Variable(self.latent_space.data, volatile=True))
 
             batch_shape = list(batch.shape)
             batch_shape[1] = 1
