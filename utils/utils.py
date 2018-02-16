@@ -2,6 +2,8 @@ import torch.nn.functional as F
 import torch.nn as nn
 import torch
 
+from torch.nn import Parameter
+
 
 def downsample_tensor(tensor, factor):
     return F.avg_pool2d(tensor, kernel_size=factor, stride=factor)

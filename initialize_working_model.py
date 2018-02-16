@@ -8,6 +8,7 @@ import settings
 from utils import progressive_networks
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
+import utils.spectral_norm as sn
 import utils.utils as u
 
 
@@ -18,6 +19,9 @@ def main():
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
+
+    if settings.SPECTRAL_NORM:
+        sn.normalize_network(D, 0.2)
 
     #G.apply(u.near_identity_weight_init)
     #D.apply(u.near_identity_weight_init)
@@ -47,6 +51,10 @@ def main():
     json.dump(state, open("working_model/state.json", "w"))
     # -----------------
     print("Saved networks and RGB layers in ./working_model")
+
+    # Set row to zero for progressive training
+    json.dump("0", open("/tmp/DeepGenerationConfigRow", "w"))
+
 
 if __name__ == "__main__":
     main()

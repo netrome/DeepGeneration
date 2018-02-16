@@ -1,6 +1,7 @@
 import json
 
 import torch
+import torch.cuda
 import torch.utils.data
 
 import settings
@@ -77,7 +78,8 @@ def main():
 
     stage.visualize(visualizer)
     for i in range(settings.CHUNKS):
-        print("Chunk {}, stage {}, fade in: {}                   ".format(i, settings.STAGE, settings.FADE_IN))
+        print("Chunk {}, stage {}, fade in: {}, GPU memory {}               "
+              .format(i, settings.STAGE, settings.FADE_IN, 1337))
         stage.steps(settings.STEPS)
         gc.collect()  # Prevent memory leaks (?)
         state["history_real"].append(float(stage.pred_real))

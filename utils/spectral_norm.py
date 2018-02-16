@@ -17,7 +17,7 @@ class SpectralNorm:
 
         # Weight scaling
         torch.nn.init.kaiming_normal(W, a=a, mode="fan_out")  # Apply He initializer
-        scale = torch.std(W)  # Obtain scale factor
+        scale = torch.Tensor([torch.std(W)])  # Obtain scale factor
         W /= scale  # Undo initialization to obtain N(0,1) in weight tensor
 
         self.shape = W.shape
@@ -32,9 +32,9 @@ class SpectralNorm:
         del module._parameters[weight_name]
 
         module.register_parameter("unnormalized_weight", Parameter(W))
-        module.register_buffer("u", u.data)
-        module.register_buffer("v", v.data)
-        module.register_buffer("scale", scale.data)  # Registered buffers should be tensors
+        module.register_buffer("u", u)
+        module.register_buffer("v", v)
+        module.register_buffer("scale", scale)  # Registered buffers should be tensors
         module.register_forward_pre_hook(self)  # Register this as a forward hook
 
     def normalized_weight(self, module):

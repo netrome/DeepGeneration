@@ -47,7 +47,7 @@ class StageTrainer:
         params_D = [param for param in D.parameters() if param.requires_grad]
         self.opt_D = torch.optim.Adamax(params_D,
                                         lr=settings.LEARNING_RATE,
-                                        betas=settings.BETAS
+                                        betas=settings.BETAS,
                                         )
         self.opt_toRGB = torch.optim.Adamax(self.toRGB.parameters(),
                                             lr=settings.LEARNING_RATE,
@@ -149,7 +149,7 @@ class StageTrainer:
 
                     grad_loss = (grad_norm - 1).pow(2)
                     #grad_loss = (grad_norm - 750).pow(2) / 562500
-                    loss_D += 10 * grad_loss
+                    loss_D += grad_loss
 
                 loss_D += 0.001 * pred_real.pow(2)  # Drift loss
 

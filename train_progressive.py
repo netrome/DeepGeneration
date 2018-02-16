@@ -3,6 +3,7 @@ import train_stage
 import initialize_working_model
 import csv
 import signal
+import json
 
 
 # Ugly hack to trap Vlad when he appears
@@ -40,13 +41,21 @@ with open(settings.CONFIG_PATH) as f:
         config.append(row)
 
 # Force progressive training
-if not settings.WORKING_MODEL:
+row = 0
+if settings.WORKING_MODEL:
+    # Recover from previously used state
+    row = int(json.load(open("/tmp/DeepGenerationConfigRow", "r")))
+else:
     print("Resetting model")
     initialize_working_model.main()
+
 settings.WORKING_MODEL = True
-for conf in config:
+while row < len(config):
+    json.dump(str(row), open("/tmp/DeepGenerationConfigRow", "w"))
+    conf = config[row]
     update_settings(*conf)
     print("Calling train_stage main method")
     train_stage.main()
+    row += 1
 
 
