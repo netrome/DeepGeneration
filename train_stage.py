@@ -10,6 +10,7 @@ from utils import progressive_networks
 from utils import trainer
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
+import utils.spectral_norm as sn
 
 import gc
 
@@ -33,9 +34,13 @@ def main():
     G = progressive_networks.TrivialGeneratorLight()
     D = progressive_networks.TrivialDiscriminatorLight()
 
+
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
+
+    if settings.SPECTRAL_NORM:
+        sn.normalize_network(D, 0.2)
 
     if settings.WORKING_MODEL:
         print("Using model parameters in ./working_model")
