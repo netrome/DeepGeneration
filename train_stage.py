@@ -34,7 +34,6 @@ def main():
     G = progressive_networks.TrivialGeneratorLight()
     D = progressive_networks.TrivialDiscriminatorLight()
 
-
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
