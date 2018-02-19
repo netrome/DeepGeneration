@@ -27,7 +27,7 @@ class StageTrainer:
         self.toRGB = nn.Conv2d(self.conversion_depth, 2, 1)
         self.fromRGB = nn.Conv2d(2, self.conversion_depth, 1)
         self.latent_space = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
-        self.latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
+        self.latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1), volatile=True)
         self.pred_real = Variable(torch.zeros(1))
         self.pred_fake = Variable(torch.zeros(1))
 
@@ -39,13 +39,15 @@ class StageTrainer:
             self.pred_real = self.pred_real.cuda()
             self.pred_fake = self.pred_fake.cuda()
 
-        self.opt_G = torch.optim.Adamax(G.parameters(),
+        params_G = [param for param in G.parameters() if param.requires_grad]
+        self.opt_G = torch.optim.Adamax(params_G,
                                         lr=settings.LEARNING_RATE,
                                         betas=settings.BETAS
                                         )
-        self.opt_D = torch.optim.Adamax(D.parameters(),
+        params_D = [param for param in D.parameters() if param.requires_grad]
+        self.opt_D = torch.optim.Adamax(params_D,
                                         lr=settings.LEARNING_RATE,
-                                        betas=settings.BETAS
+                                        betas=settings.BETAS,
                                         )
         self.opt_toRGB = torch.optim.Adamax(self.toRGB.parameters(),
                                             lr=settings.LEARNING_RATE,
@@ -56,10 +58,11 @@ class StageTrainer:
                                               betas=settings.BETAS
                                               )
 
-        # Load optimizer states
-        if settings.WORKING_MODEL:
-            self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
-            self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
+        # Don't load optimizer state
+        # Load optimizer states, except for during fade in (which is freeze in now)
+        #if settings.WORKING_MODEL and not settings.FADE_IN:
+        #    self.opt_G.load_state_dict(torch.load("working_model/optG.state"))
+        #    self.opt_D.load_state_dict(torch.load("working_model/optD.state"))
 
         self.update_state = 0
 
@@ -81,12 +84,12 @@ class StageTrainer:
     def visualize(self, visualizer):
         # Get single batch using for loop
         for batch in cyclic_data_iterator(self.data_loader, 1):
-            batch = Variable(batch)
+            batch = Variable(batch, volatile=True)  # No backprop here
             if settings.CUDA:
                 batch = batch.cuda()
             batch = F.avg_pool2d(batch, self.downscale_factor, stride=self.downscale_factor)
             self.latent_space.data.normal_()
-            fake = self.generate_fake(self.latent_space)
+            fake = self.generate_fake(Variable(self.latent_space.data, volatile=True))
 
             batch_shape = list(batch.shape)
             batch_shape[1] = 1
@@ -135,7 +138,8 @@ class StageTrainer:
                 loss_D = pred_fake - pred_real
 
                 if settings.GRADIENT_PENALTY:
-                    grads = torch.autograd.grad(torch.mean(pred_fake), self.D.parameters(),
+                    params = [param for param in self.D.parameters() if param.requires_grad]
+                    grads = torch.autograd.grad(torch.mean(pred_fake), params,
                                                 create_graph=True, allow_unused=True)
                     grad_norm = 0
                     for grad in grads:
@@ -145,7 +149,7 @@ class StageTrainer:
 
                     grad_loss = (grad_norm - 1).pow(2)
                     #grad_loss = (grad_norm - 750).pow(2) / 562500
-                    loss_D += 10 * grad_loss
+                    loss_D += grad_loss
 
                 loss_D += 0.001 * pred_real.pow(2)  # Drift loss
 

@@ -173,6 +173,24 @@ class TrivialGeneratorLight(nn.Module):
             img = F.normalize(self.activation(self.blocks[i](small)))
         return img, small
 
+    def freeze_until(self, levels=6):
+        for param in self.inflate.parameters():
+            param.requires_grad = False
+        for param in self.low_conv.parameters():
+            param.requires_grad = False
+        for i in range(levels):
+            for param in self.blocks[i].parameters():
+                param.requires_grad = False
+
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[i].parameters():
+                param.requires_grad = False
+
+    def unfreeze_all(self):
+        for param in self.parameters():
+            param.requires_grad = True
+
 
 class TrivialDiscriminatorLight(nn.Module):
     def __init__(self):
@@ -224,6 +242,27 @@ class TrivialDiscriminatorLight(nn.Module):
         flat = self.activation(self.deflate(img).view(-1, 128))
         return self.fc(flat)
 
+    def freeze_until(self, levels=6):
+        for param in self.low_conv.parameters():
+            param.requires_grad = False
+        for param in self.deflate.parameters():
+            param.requires_grad = False
+        for param in self.fc.parameters():
+            param.requires_grad = False
+        start = 6 - levels
+        for i in range(levels):
+            for param in self.blocks[start + i].parameters():
+                param.requires_grad = False
+
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[5 - i].parameters():
+                param.requires_grad = False
+
+    def unfreeze_all(self):
+        for param in self.parameters():
+            param.requires_grad = True
+
 
 # Sampling networks, similar to original article ------------------------------------
 
@@ -262,10 +301,22 @@ class SamplingGeneratorLight(nn.Module):
         return img, small
 
     def freeze_until(self, levels=6):
-        pass  # TODO
+        for param in self.inflate.parameters():
+            param.requires_grad = False
+        for param in self.low_conv.parameters():
+            param.requires_grad = False
+        for i in range(levels):
+            for param in self.blocks[i].parameters():
+                param.requires_grad = False
+
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[i].parameters():
+                param.requires_grad = False
 
     def unfreeze_all(self):
-        pass  # TODO
+        for param in self.parameters():
+            param.requires_grad = True
 
 
 class SamplingDiscriminatorLight(nn.Module):
@@ -317,3 +368,24 @@ class SamplingDiscriminatorLight(nn.Module):
         img = self.activation(self.low_conv(img))
         flat = self.activation(self.deflate(img).view(-1, 128))
         return self.fc(flat)
+
+    def freeze_until(self, levels=6):
+        for param in self.low_conv.parameters():
+            param.requires_grad = False
+        for param in self.deflate.parameters():
+            param.requires_grad = False
+        for param in self.fc.parameters():
+            param.requires_grad = False
+        start = 6 - levels
+        for i in range(levels):
+            for param in self.blocks[start + i].parameters():
+                param.requires_grad = False
+
+    def freeze_idle(self, levels=6):
+        for i in range(levels, 6):
+            for param in self.blocks[5 - i].parameters():
+                param.requires_grad = False
+
+    def unfreeze_all(self):
+        for param in self.parameters():
+            param.requires_grad = True

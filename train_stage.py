@@ -1,6 +1,7 @@
 import json
 
 import torch
+import torch.cuda
 import torch.utils.data
 
 import settings
@@ -10,6 +11,7 @@ from utils import progressive_networks
 from utils import trainer
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
+import utils.spectral_norm as sn
 
 import gc
 
@@ -30,12 +32,15 @@ def main():
     visualizer.point = state["point"]
 
     # Define networks -------------------------------------------------
-    G = progressive_networks.SamplingGeneratorLight()
-    D = progressive_networks.SamplingDiscriminatorLight()
+    G = progressive_networks.TrivialGeneratorLight()
+    D = progressive_networks.TrivialDiscriminatorLight()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
         ws.scale_network(G, 0.2)
+
+    if settings.SPECTRAL_NORM:
+        sn.normalize_network(D, 0.2)
 
     if settings.WORKING_MODEL:
         print("Using model parameters in ./working_model")
@@ -50,14 +55,19 @@ def main():
     # Train with StageTrainer or FadeInTrainer
     s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]
     if settings.FADE_IN:
-        print("Fading in next layer")
-        next_cd = settings.PROGRESSION[settings.STAGE + 1][0]
-        increment = 1/(settings.CHUNKS * settings.STEPS)
-        stage = trainer.FadeInTrainer(G, D, data_loader, stage=s, conversion_depth=c,
-                                      downscale_factor=int(d/2), next_cd=next_cd, increment=increment)
-    else:
-        stage = trainer.StageTrainer(G, D, data_loader,
-                                     stage=s, conversion_depth=c, downscale_factor=d)
+        print("Freezing in next layer")
+        c = settings.PROGRESSION[settings.STAGE + 1][0]
+        d = int(d/2)
+        G.freeze_until(s)
+        #D.freeze_until(s)
+        s += 1
+
+    # Freeze idle layers - did not stop vlad
+    #G.freeze_idle(s)
+    #D.freeze_idle(s)
+
+    stage = trainer.StageTrainer(G, D, data_loader,
+                                 stage=s, conversion_depth=c, downscale_factor=d)
     stage.pred_real += state["pred_real"]
     stage.pred_fake += state["pred_fake"]
 
@@ -68,9 +78,11 @@ def main():
 
     stage.visualize(visualizer)
     for i in range(settings.CHUNKS):
-        print("Chunk {}, stage {}, fade in: {}                   ".format(i, settings.STAGE, settings.FADE_IN))
+        print("Chunk {}, stage {}, fade in: {}, GPU memory {}               "
+              .format(i, settings.STAGE, settings.FADE_IN, 1337))
         stage.steps(settings.STEPS)
         gc.collect()  # Prevent memory leaks (?)
+        #torch.cuda.empty_cache()  - Made no difference
         state["history_real"].append(float(stage.pred_real))
         state["history_fake"].append(float(stage.pred_fake))
         if settings.WORKING_MODEL:
@@ -79,6 +91,7 @@ def main():
         stage.visualize(visualizer)
 
     # Save networks
+    """
     if settings.FADE_IN:
         to_rgb, from_rgb, next_to_rgb, next_from_rgb = stage.get_rgb_layers()
         print("Saving extra rgb layers, {}".format(time.ctime()))
@@ -86,11 +99,15 @@ def main():
         torch.save(next_from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s + 1))
     else:
         to_rgb, from_rgb = stage.get_rgb_layers()
-
+    """
+    to_rgb, from_rgb = stage.get_rgb_layers()
     print("Saving rgb layers, {}".format(time.ctime()))
+
     torch.save(to_rgb.state_dict(), "working_model/toRGB{}.params".format(s))
     torch.save(from_rgb.state_dict(), "working_model/fromRGB{}.params".format(s))
     print("Saving networks, {}".format(time.ctime()))
+    G.unfreeze_all()
+    D.unfreeze_all()
     torch.save(G.state_dict(), "working_model/G.params")
     torch.save(D.state_dict(), "working_model/D.params")
 
@@ -102,12 +119,12 @@ def main():
     json.dump(state, open("working_model/state.json", "w"))
 
     # Save optimizer state
-    opt_G = stage.opt_G
-    opt_D = stage.opt_D
+    #opt_G = stage.opt_G
+    #opt_D = stage.opt_D
 
-    print("Saving optimizer state, {}".format(time.ctime()))
-    torch.save(opt_G.state_dict(), "working_model/optG.state")
-    torch.save(opt_D.state_dict(), "working_model/optD.state")
+    #print("Saving optimizer state, {}".format(time.ctime()))
+    #torch.save(opt_G.state_dict(), "working_model/optG.state")
+    #torch.save(opt_D.state_dict(), "working_model/optD.state")
     print("Finished with main")
 
 if __name__ == "__main__":
