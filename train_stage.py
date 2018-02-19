@@ -82,6 +82,7 @@ def main():
               .format(i, settings.STAGE, settings.FADE_IN, 1337))
         stage.steps(settings.STEPS)
         gc.collect()  # Prevent memory leaks (?)
+        #torch.cuda.empty_cache()  - Made no difference
         state["history_real"].append(float(stage.pred_real))
         state["history_fake"].append(float(stage.pred_fake))
         if settings.WORKING_MODEL:
