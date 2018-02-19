@@ -1,4 +1,8 @@
 """ Pure VAE training, good for testing different architectures and stuff """
+import json
+import time
+import math
+
 import settings
 import torch
 import torch.nn as nn
@@ -30,8 +34,20 @@ optimizer = torch.optim.Adamax([
 ])
 
 reconstruction_loss = nn.MSELoss()
+KL_weight = 0.001
 
 visualizer = vis.Visualizer()
+state = json.load(open("working_model/state.json", "r"))
+visualizer.point = state["point"]
+
+if settings.WORKING_MODEL:
+    print("Using model parameters in ./working_model")
+    decoder.load_state_dict(torch.load("working_model/G.params"))
+    encoder.load_state_dict(torch.load("working_model/E.params"))
+
+    toRGB.load_state_dict(torch.load("working_model/toRGB6.params"))
+    fromRGB.load_state_dict(torch.load("working_model/fromRGB6.params"))
+    print("Loaded RGB layers too")
 
 dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
 data_loader = torch.utils.data.DataLoader(dataset,
@@ -50,8 +66,8 @@ def sample_with_reparametrization(mu, log_var):
 def VAE_loss(decoded, original, mu, log_var):
     recon = reconstruction_loss(decoded, original)
 
-    KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-    return recon, KLD
+    KLD_loss = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+    return recon, KLD_loss
 
 
 def update_visualization(visualizer, batch, fake, MSE, KLD):
@@ -88,7 +104,7 @@ for chunk in range(settings.CHUNKS):
         decoded = toRGB(decoder(sampled.view(-1, 128, 1, 1)))  # No sigmoid
 
         recon, KLD = VAE_loss(decoded, batch, encoded[0], encoded[1])
-        loss = recon + KLD
+        loss = recon + KLD * KL_weight
 
         # Perform an optimization step
         optimizer.zero_grad()
@@ -99,4 +115,18 @@ for chunk in range(settings.CHUNKS):
 
     update_visualization(visualizer, batch, decoded, recon, KLD)
 
+# Save models
+print("Saving rgb layers, {}".format(time.ctime()))
+
+torch.save(toRGB.state_dict(), "working_model/toRGB6.params")
+torch.save(fromRGB.state_dict(), "working_model/fromRGB6.params")
+torch.save(decoder.state_dict(), "working_model/G.params")
+torch.save(encoder.state_dict(), "working_model/E.params")
+
+# Save state
+state["point"] = visualizer.point
+print("Saving state, {}".format(time.ctime()))
+json.dump(state, open("working_model/state.json", "w"))
+
+print("Finished with main")
 
