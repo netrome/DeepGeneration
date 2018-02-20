@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-from .progressive_networks import TrivialDownBlock, TrivialUpBlock
+from .progressive_networks import TrivialDownBlock
 
 
 # Encoders ---------------------------------------
@@ -35,4 +35,47 @@ class TrivialEncoderLight(nn.Module):
         return self.to_mean(flat), self.to_log_var(flat)
 
 # Decoders/generators ----------------------------
+
+
+# Image to image models --------------------------------------
+class ImageToImage(nn.Module):
+    """ For semantic segmentation """
+    def __init__(self):
+        super().__init__()
+
+        self.fromImg = nn.Conv2d(1, 16, 1)
+        self.toImg = nn.Conv2d(16, 1, 1)
+
+        self.activation = nn.ReLU()
+
+        self.down1 = nn.Conv2d(16, 32, 3, stride=2, padding=1)  # 256 -> 128
+        self.down2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)  # 128 -> 64
+        self.down3 = nn.Conv2d(64, 128, 3, stride=2, padding=1)  # 64 -> 32
+        self.down4 = nn.Conv2d(128, 256, 3, stride=2, padding=1)  # 32 -> 16
+        self.down5 = nn.Conv2d(256, 256, 3, stride=2, padding=1)  # 16 -> 8
+        self.down6 = nn.Conv2d(256, 256, 3, stride=2, padding=1)  # 8 -> 4
+
+        self.up1 = nn.ConvTranspose2d(256, 256, 4, stride=2, padding=1)
+        self.up2 = nn.ConvTranspose2d(256, 256, 4, stride=2, padding=1)
+        self.up3 = nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1)
+        self.up4 = nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1)
+        self.up5 = nn.ConvTranspose2d(64, 32, 4, stride=2, padding=1)
+        self.up6 = nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1)
+
+        self.downs = [self.down1, self.down2, self.down3, self.down4, self.down5, self.down6]
+        self.ups = [self.up1, self.up2, self.up3, self.up4, self.up5, self.up6]
+
+    def forward(self, batch):
+        map = self.fromImg(batch)
+        maps = [0 for i in range(6)]
+        for i in range(6):
+            maps[5 - i] = map
+            map = self.activation(self.downs[i](map))
+
+        # Do stuff with feature map - but not now
+
+        for i in range(6):
+            map = self.activation(self.ups[i](map) + maps[i])
+
+        return self.toImg(map)
 

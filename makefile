@@ -85,3 +85,9 @@ overnight_vae_2018-02-19:
 	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
 	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
 
+regressor:
+	python initialize_working_model.py
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
