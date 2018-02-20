@@ -20,6 +20,8 @@ parser.add_argument("--ws", help="use weight equalization", action="store_true")
 parser.add_argument("--sn", help="spectral normalization in D", action="store_true")
 parser.add_argument("--fade-in", help="fade in next layers", action="store_true")
 parser.add_argument("--config", help="external configuration", action="store")
+parser.add_argument("--model", help="model path", action="store")
+parser.add_argument("--generated", help="generated data path", action="store")
 args = parser.parse_args()
 
 
@@ -36,6 +38,10 @@ SPECTRAL_NORM = args.sn
 BATCH_SIZE = int(args.bs)
 
 DISCRIMINATOR_ITERATIONS = int(args.nd)
+
+MODEL_PATH = args.model
+
+GENERATED_PATH = args.generated
 
 LEARNING_RATE = float(args.lr)
 if EQUALIZE_WEIGHTS or SPECTRAL_NORM:
