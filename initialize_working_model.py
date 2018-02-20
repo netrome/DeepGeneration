@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 import settings
-from utils import progressive_networks
+from utils import progressive_networks, networks
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
 import utils.spectral_norm as sn
@@ -15,6 +15,7 @@ import utils.utils as u
 def main():
     G = progressive_networks.TrivialGeneratorLight()
     D = progressive_networks.TrivialDiscriminatorLight()
+    E = networks.TrivialEncoderLight()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
@@ -34,6 +35,7 @@ def main():
 
     torch.save(G.state_dict(), "working_model/G.params")
     torch.save(D.state_dict(), "working_model/D.params")
+    torch.save(E.state_dict(), "working_model/E.params")
 
     #torch.save(opt_G.state_dict(), "working_model/optG.state")
     #torch.save(opt_D.state_dict(), "working_model/optD.state")
