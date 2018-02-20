@@ -31,7 +31,6 @@ def _generate_heatmap(path, shape):
 
 
 class SyntheticFullyAnnotated(Dataset):
-
     def __init__(self, data_root):
         self.image_paths = glob.glob(os.path.expanduser(
             os.path.join(data_root, "*.png")), recursive=False)
@@ -44,3 +43,19 @@ class SyntheticFullyAnnotated(Dataset):
         heatmap = _generate_heatmap(self.image_paths[item].strip(".png") + ".json", pic.shape)
 
         return torch.cat([torch.from_numpy(pic), torch.from_numpy(heatmap)])
+
+
+class GeneratedWithMaps(Dataset):
+    def __init__(self, data_root):
+        self.image_paths = glob.glob(os.path.expanduser(
+            os.path.join(data_root, "image*.png")), recursive=False)
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, item):
+        pic = _load_image(self.image_paths[item])
+        heatmap = _load_image(self.image_paths[item].replace("image", "map"))
+
+        return torch.cat([torch.from_numpy(pic), torch.from_numpy(heatmap)])
+

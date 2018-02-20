@@ -14,6 +14,9 @@ from utils.utils import cyclic_data_iterator
 from torch.autograd import Variable
 
 dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
+if settings.GENERATED_PATH is not None:
+    dataset = datasets.GeneratedWithMaps(settings.GENERATED_PATH)
+    print("Using generated data set at: {}".format(settings.GENERATED_PATH))
 data_loader = torch.utils.data.DataLoader(dataset,
                                           batch_size=settings.BATCH_SIZE,
                                           shuffle=True,

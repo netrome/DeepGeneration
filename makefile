@@ -87,7 +87,7 @@ overnight_vae_2018-02-19:
 
 regressor:
 	python initialize_working_model.py
-	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
-	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
-	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
-	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip --generated $(data)
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip --generated $(data)
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip --generated $(data)
+	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip --generated $(data)
