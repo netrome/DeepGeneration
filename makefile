@@ -72,3 +72,16 @@ overnigt_training_2018-02-06:
 	python train_stage.py --stage 6 --chunks 200 --steps 107 --cuda --gp --wip --lr 0.0001  
 	python train_stage.py --stage 6 --chunks 200 --steps 108 --cuda --gp --wip --lr 0.0001  
 	python train_stage.py --stage 6 --chunks 200 --steps 109 --cuda --gp --wip --lr 0.0001  
+
+overnight_vae_2018-02-19:
+	python initialize_working_model.py
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u vae_training.py --cuda --chunks 200 --steps 100 --wip
+

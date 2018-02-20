@@ -34,7 +34,7 @@ optimizer = torch.optim.Adamax([
 ])
 
 reconstruction_loss = nn.MSELoss()
-KL_weight = 0.001
+KL_weight = 1e-6
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
