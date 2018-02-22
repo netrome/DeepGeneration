@@ -102,6 +102,27 @@ overnight_vae_long:
 	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip
 	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip
 
+overnight_vae_real:
+	python initialize_working_model.py
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+	python -u vae_training.py --cuda --chunks 200 --steps 200 --wip --real-data
+
 regressor:
 	python initialize_working_model.py
 	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip --generated $(data)

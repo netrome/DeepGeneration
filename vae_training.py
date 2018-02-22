@@ -1,7 +1,6 @@
 """ Pure VAE training, good for testing different architectures and stuff """
 import json
 import time
-import math
 
 import settings
 import torch
@@ -31,10 +30,9 @@ optimizer = torch.optim.Adamax([
     {"params": decoder.parameters()},
     {"params": toRGB.parameters()},
     {"params": fromRGB.parameters()},
-])
+], lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()  # Better than MSE
-# KL_weight = 1e-6
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
@@ -69,7 +67,7 @@ def VAE_loss(decoded, original, mu, log_var):
     recon = reconstruction_loss(decoded, original)
 
     KLD_loss = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-    KLD_loss /= original.shape[0] * 65536  # This can be motivated, and yields a valid VAE
+    KLD_loss /= (original.shape[0] * 65536)  # This can be motivated, and yields a valid VAE
     return recon, KLD_loss
 
 

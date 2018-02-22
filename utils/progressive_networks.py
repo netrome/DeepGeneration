@@ -69,20 +69,20 @@ class TrivialGenerator(nn.Module):
         self.blocks = [self.up1, self.up2, self.up3, self.up4, self.up5, self.up6]
 
     def forward(self, z, levels=6):
-        img = F.normalize(self.activation(self.inflate(z)))
-        img = F.normalize(self.activation(self.low_conv(img)))
+        img = self.activation(F.normalize(self.inflate(z)))
+        img = self.activation(F.normalize(self.low_conv(img)))
 
         for i in range(levels):
-            img = F.normalize(self.activation(self.blocks[i](img)))
+            img = self.activation(F.normalize(self.blocks[i](img)))
         return img
 
     def fade_in(self, z, levels=6):
-        img = F.normalize(self.activation(self.inflate(z)))
-        img = F.normalize(self.activation(self.low_conv(img)))
+        img = self.activation(F.normalize(self.inflate(z)))
+        img = self.activation(F.normalize(self.low_conv(img)))
 
         for i in range(levels):
             small = img
-            img = F.normalize(self.activation(self.blocks[i](small)))
+            img = self.activation(F.normalize(self.blocks[i](small)))
         return img, small
 
 
