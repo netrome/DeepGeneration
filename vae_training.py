@@ -33,8 +33,8 @@ optimizer = torch.optim.Adamax([
     {"params": fromRGB.parameters()},
 ])
 
-reconstruction_loss = nn.MSELoss()
-KL_weight = 1e-6
+reconstruction_loss = nn.L1Loss()  # Better than MSE
+# KL_weight = 1e-6
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
@@ -67,6 +67,7 @@ def VAE_loss(decoded, original, mu, log_var):
     recon = reconstruction_loss(decoded, original)
 
     KLD_loss = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+    KLD_loss /= original.shape[0] * 65536  # This can be motivated, and yields a valid VAE
     return recon, KLD_loss
 
 
@@ -104,7 +105,7 @@ for chunk in range(settings.CHUNKS):
         decoded = toRGB(decoder(sampled.view(-1, 128, 1, 1)))  # No sigmoid
 
         recon, KLD = VAE_loss(decoded, batch, encoded[0], encoded[1])
-        loss = recon + KLD * KL_weight
+        loss = recon + KLD
 
         # Perform an optimization step
         optimizer.zero_grad()
