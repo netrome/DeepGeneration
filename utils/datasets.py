@@ -4,6 +4,7 @@ import json
 import random
 
 import torch
+import torch.nn.functional as F
 import numpy as np
 import cv2
 
@@ -88,17 +89,17 @@ class DeepGazeData(Dataset):
 
         # Generate heatmap
         x, y, wx, wy = [int(round(i)) for i in (x, y, wx, wy)]
-        heatmap = np.zeros([1, w, h]).astype("float32")
+        heatmap = np.zeros([1, h, w]).astype("float32")
         cv2.ellipse(heatmap[0], (x, y), (wx, wy), rotation, 0, 360, 255, -1)
 
-        pic = _load_image(file.replace(".json", ".png"), (w, h))
-        tot = torch.cat([torch.from_numpy(pic), torch.from_numpy(heatmap)])
+        pic = _load_image(file.replace(".json", ".png"), (h, w))
+        tot = torch.cat([torch.from_numpy(pic), torch.from_numpy(heatmap)/255])
 
         # Crop image
         min_x = max(0, x - 200)
         max_x = min(w - 256, x - 56)
         max_y = h - 256
-        start = (random.randint(min_x, max_x), random.randint(0, max_y))
+        start = (random.randint(0, max_y), random.randint(min_x, max_x))
 
         return tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]
 
