@@ -1,4 +1,4 @@
-""" Pure VAE training, good for testing different architectures and stuff """
+""" own training scheme for AEGAN """
 import json
 import time
 
@@ -13,18 +13,27 @@ import utils.utils as u
 
 from utils.utils import cyclic_data_iterator
 
+G = u.create_generator()
 encoder = u.create_encoder()
-decoder = u.create_generator()
+D = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
-fromRGB = nn.Conv2d(2, 16, 1)
+fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
+latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
+
+pred_fake_history = torch.zeros(1)
+pred_real_history = torch.zeros(1)
 
 if settings.CUDA:
     toRGB.cuda()
     fromRGB.cuda()
+    latent = latent.cuda()
+    pred_fake_history = pred_fake_history.cuda()
+    pred_real_history = pred_real_history.cuda()
 
 optimizer = torch.optim.Adamax([
     {"params": encoder.parameters()},
-    {"params": decoder.parameters()},
+    {"params": G.parameters()},
+    {"params": D.parameters()},
     {"params": toRGB.parameters()},
     {"params": fromRGB.parameters()},
 ], lr=settings.LEARNING_RATE, betas=settings.BETAS)
@@ -33,11 +42,14 @@ reconstruction_loss = nn.L1Loss()  # Better than MSE
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
+pred_real_history += state["pred_real"]
+pred_fake_history += state["pred_fake"]
 visualizer.point = state["point"]
 
 if settings.WORKING_MODEL:
     print("Using model parameters in ./working_model")
-    decoder.load_state_dict(torch.load("working_model/G.params"))
+    G.load_state_dict(torch.load("working_model/G.params"))
+    D.load_state_dict(torch.load("working_model/D.params"))
     encoder.load_state_dict(torch.load("working_model/E.params"))
 
     toRGB.load_state_dict(torch.load("working_model/toRGB6.params"))
@@ -54,21 +66,8 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           drop_last=True)
 
 
-def sample_with_reparametrization(mu, log_var):
-    std = log_var.mul(0.1).exp_()
-    eps = Variable(std.data.new(std.size()).normal_())
-    return eps.mul(std).add_(mu)
-
-
-def VAE_loss(decoded, original, mu, log_var):
-    recon = reconstruction_loss(decoded, original)
-
-    KLD_loss = - 0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
-    KLD_loss /= (original.shape[0] * 65536)  # This can be motivated, and yields a valid VAE
-    return recon, KLD_loss
-
-
 def update_visualization(visualizer, batch, fake, MSE, KLD):
+    # TODO move this to utils or visualizer to save code
     batch_shape = list(batch.shape)
     batch_shape[1] = 1
 
@@ -91,40 +90,58 @@ def update_visualization(visualizer, batch, fake, MSE, KLD):
 
 for chunk in range(settings.CHUNKS):
     print("Chunk {}/{}    ".format(chunk, settings.CHUNKS))
-    batch, decoded, MSE, KLD = None, None, None, None
+    batch, fake = None, None
     for i, batch in enumerate(cyclic_data_iterator(data_loader, settings.STEPS)):
         batch = Variable(batch)
         if settings.CUDA:
             batch = batch.cuda()
+        latent.data.normal_()  # Sample latent vector
 
-        encoded = encoder(fromRGB(batch))
-        sampled = sample_with_reparametrization(encoded[0], encoded[1])
-        decoded = toRGB(decoder(sampled.view(-1, 128, 1, 1)))  # No sigmoid
+        fake = toRGB(G(latent))
+        pred_fake = D(fromRGB(fake))
 
-        recon, KLD = VAE_loss(decoded, batch, encoded[0], encoded[1])
-        loss = recon + KLD
+        if i % settings.DISCRIMINATOR_ITERATIONS == 0:
+            encoded = encoder(fromRGB(batch))[0]  # Only use mean in this framework
+            decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
-        # Perform an optimization step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            rec_loss = reconstruction_loss(decoded, batch)
+            adv_loss = torch.mean((pred_fake - 1).pow(2))
+            loss = rec_loss + adv_loss
+
+            # Perform an optimization step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        else:
+            pred_real = D(fromRGB(batch))
+            pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
+            pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
+            loss = torch.mean((pred_real - 1)**2 + pred_fake**2)
+
+            # Perform an optimization step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
         if i % 10 == 9:
             print("Step {}/{}   ".format(i + 1, settings.STEPS), end="\r")
 
-    update_visualization(visualizer, batch, decoded, recon, KLD)
+    update_visualization(visualizer, batch, fake, pred_fake_history, pred_real_history)
 
 # Save models
 print("Saving rgb layers, {}".format(time.ctime()))
 
 torch.save(toRGB.state_dict(), "working_model/toRGB6.params")
 torch.save(fromRGB.state_dict(), "working_model/fromRGB6.params")
-torch.save(decoder.state_dict(), "working_model/G.params")
+torch.save(G.state_dict(), "working_model/G.params")
+torch.save(D.state_dict(), "working_model/G.params")
 torch.save(encoder.state_dict(), "working_model/E.params")
 
 # Save state
 state["point"] = visualizer.point
+state["pred_real"] = float(pred_real_history)
+state["pred_fake"] = float(pred_fake_history)
 print("Saving state, {}".format(time.ctime()))
 json.dump(state, open("working_model/state.json", "w"))
 
 print("Finished with main")
-
