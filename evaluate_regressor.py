@@ -8,7 +8,8 @@ import settings
 
 
 R = u.create_regressor()
-R.load_state_dict(torch.load("working_model/R.params"))
+R.load_state_dict(torch.load(settings.REGRESSOR_PATH))
+
 
 dataset = u.get_data_set()
 if settings.GENERATED_PATH is not None:

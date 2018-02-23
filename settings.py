@@ -23,6 +23,7 @@ parser.add_argument("--real-data", help="use real data", action="store_true")
 parser.add_argument("--config", help="external configuration", action="store")
 parser.add_argument("--model", help="model path", action="store")
 parser.add_argument("--generated", help="generated data path", action="store")
+parser.add_argument("--regressor", help="regressor path", action="store")
 args = parser.parse_args()
 
 
@@ -45,6 +46,8 @@ DISCRIMINATOR_ITERATIONS = int(args.nd)
 MODEL_PATH = args.model
 
 GENERATED_PATH = args.generated
+
+REGRESSOR_PATH = args.regressor
 
 LEARNING_RATE = float(args.lr)
 if EQUALIZE_WEIGHTS or SPECTRAL_NORM:
