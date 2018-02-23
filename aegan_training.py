@@ -14,14 +14,14 @@ import utils.utils as u
 from utils.utils import cyclic_data_iterator
 
 G = u.create_generator()
-encoder = u.create_encoder()
+E = u.create_encoder()
 D = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 
-pred_fake_history = torch.zeros(1)
-pred_real_history = torch.zeros(1)
+pred_fake_history = Variable(torch.zeros(1))
+pred_real_history = Variable(torch.zeros(1))
 
 if settings.CUDA:
     toRGB.cuda()
@@ -30,13 +30,19 @@ if settings.CUDA:
     pred_fake_history = pred_fake_history.cuda()
     pred_real_history = pred_real_history.cuda()
 
-optimizer = torch.optim.Adamax([
-    {"params": encoder.parameters()},
-    {"params": G.parameters()},
-    {"params": D.parameters()},
-    {"params": toRGB.parameters()},
-    {"params": fromRGB.parameters()},
-], lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+
+#optimizer = torch.optim.Adamax([
+#    {"params": E.parameters()},
+#    {"params": G.parameters()},
+#    {"params": D.parameters()},
+#    {"params": toRGB.parameters()},
+#    {"params": fromRGB.parameters()},
+#], lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()  # Better than MSE
 
@@ -50,7 +56,7 @@ if settings.WORKING_MODEL:
     print("Using model parameters in ./working_model")
     G.load_state_dict(torch.load("working_model/G.params"))
     D.load_state_dict(torch.load("working_model/D.params"))
-    encoder.load_state_dict(torch.load("working_model/E.params"))
+    E.load_state_dict(torch.load("working_model/E.params"))
 
     toRGB.load_state_dict(torch.load("working_model/toRGB6.params"))
     fromRGB.load_state_dict(torch.load("working_model/fromRGB6.params"))
@@ -66,7 +72,7 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           drop_last=True)
 
 
-def update_visualization(visualizer, batch, fake, MSE, KLD):
+def update_visualization(visualizer, batch, fake, pred_fake, pred_real):
     # TODO move this to utils or visualizer to save code
     batch_shape = list(batch.shape)
     batch_shape[1] = 1
@@ -85,9 +91,10 @@ def update_visualization(visualizer, batch, fake, MSE, KLD):
     visualizer.update_batch(
         fake[:, 0].data.cpu().contiguous().view(batch_shape), "fake_batch")
 
-    visualizer.update_loss(MSE.data.cpu(), KLD.data.cpu())
+    visualizer.update_loss(pred_real.data.cpu(), pred_fake.data.cpu())
 
 
+update_state = 0
 for chunk in range(settings.CHUNKS):
     print("Chunk {}/{}    ".format(chunk, settings.CHUNKS))
     batch, fake = None, None
@@ -100,28 +107,39 @@ for chunk in range(settings.CHUNKS):
         fake = toRGB(G(latent))
         pred_fake = D(fromRGB(fake))
 
-        if i % settings.DISCRIMINATOR_ITERATIONS == 0:
-            encoded = encoder(fromRGB(batch))[0]  # Only use mean in this framework
+        if update_state == settings.DISCRIMINATOR_ITERATIONS:
+            update_state = 0
+            encoded = E(fromRGB(batch))[0]  # Only use mean in this framework
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
+            drift_loss = torch.mean(encoded.norm(2, 1)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch)
             adv_loss = torch.mean((pred_fake - 1).pow(2))
-            loss = rec_loss + adv_loss
+            loss = rec_loss + adv_loss + drift_loss
 
             # Perform an optimization step
-            optimizer.zero_grad()
+            opt_G.zero_grad()
+            opt_E.zero_grad()
+            opt_toRGB.zero_grad()
+            opt_fromRGB.zero_grad()
             loss.backward()
-            optimizer.step()
+            opt_G.step()
+            opt_E.step()
+            opt_toRGB.step()
+            opt_fromRGB.step()
         else:
+            update_state += 1
             pred_real = D(fromRGB(batch))
             pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
             pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
             loss = torch.mean((pred_real - 1)**2 + pred_fake**2)
 
             # Perform an optimization step
-            optimizer.zero_grad()
+            opt_D.zero_grad()
+            opt_fromRGB.zero_grad()
             loss.backward()
-            optimizer.step()
+            opt_D.step()
+            opt_fromRGB.step()
 
         if i % 10 == 9:
             print("Step {}/{}   ".format(i + 1, settings.STEPS), end="\r")
@@ -134,8 +152,8 @@ print("Saving rgb layers, {}".format(time.ctime()))
 torch.save(toRGB.state_dict(), "working_model/toRGB6.params")
 torch.save(fromRGB.state_dict(), "working_model/fromRGB6.params")
 torch.save(G.state_dict(), "working_model/G.params")
-torch.save(D.state_dict(), "working_model/G.params")
-torch.save(encoder.state_dict(), "working_model/E.params")
+torch.save(D.state_dict(), "working_model/D.params")
+torch.save(E.state_dict(), "working_model/E.params")
 
 # Save state
 state["point"] = visualizer.point
