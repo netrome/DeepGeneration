@@ -3,6 +3,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 import utils.utils as u
+import utils.datasets as datasets
 
 import settings
 

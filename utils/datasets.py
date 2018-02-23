@@ -68,8 +68,9 @@ class GeneratedWithMaps(Dataset):
 
 
 class DeepGazeData(Dataset):
-    def __init__(self):
-        self.meta_files = json.load(open("utils/ok_recordings.json", "r"))
+    def __init__(self, test=False):
+        name = "test" if test else "train"
+        self.meta_files = json.load(open("lists/DG_{}.json".format(name), "r"))
 
     def __len__(self):
         return len(self.meta_files)
