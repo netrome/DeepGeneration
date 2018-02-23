@@ -1,8 +1,15 @@
+import settings
+
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
 
 from torch.nn import Parameter
+
+from utils.networks import TrivialEncoderLight, ImageToImage
+from utils.progressive_networks import TrivialGeneratorLight, TrivialDiscriminatorLight
+
+import utils.datasets as data
 
 
 def downsample_tensor(tensor, factor):
@@ -30,4 +37,34 @@ def near_identity_weight_init(m):
             avg = torch.ones(m.weight.shape) / \
                   (m.weight.shape[1] + m.weight.shape[2] + m.weight.shape[3])
             m.weight.data = torch.randn(m.weight.shape) * 1e-6 + avg
+
+
+def _create_network(network_class):
+    net = network_class()
+    if settings.CUDA:
+        net.cuda()
+    return net
+
+
+def create_generator():
+    return _create_network(TrivialGeneratorLight)
+
+
+def create_discriminator():
+    return _create_network(TrivialDiscriminatorLight)
+
+
+def create_encoder():
+    return _create_network(TrivialEncoderLight)
+
+
+def create_regressor():
+    return _create_network(ImageToImage)
+
+
+def get_data_set():
+    if settings.REAL_DATA:
+        return data.DeepGazeData()
+    else:
+        return data.SyntheticFullyAnnotated(settings.DATA_PATH)
 

@@ -6,12 +6,12 @@ import torch.utils.data
 
 import settings
 import time
-from utils import datasets
-from utils import progressive_networks
-from utils import trainer
 from utils.visualizer import Visualizer
 import utils.weight_scaling as ws
 import utils.spectral_norm as sn
+import utils.trainer as trainer
+
+import utils.utils as u
 
 import gc
 
@@ -21,7 +21,7 @@ def main():
     print(json.dumps(vars(settings.args), sort_keys=True, indent=4))
     print("---------------------------------------------------")
     # Get utilities ---------------------------------------------------
-    dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
+    dataset = u.get_data_set()
     data_loader = torch.utils.data.DataLoader(dataset,
                                               batch_size=settings.BATCH_SIZE,
                                               shuffle=True,
@@ -32,8 +32,8 @@ def main():
     visualizer.point = state["point"]
 
     # Define networks -------------------------------------------------
-    G = progressive_networks.TrivialGeneratorLight()
-    D = progressive_networks.TrivialDiscriminatorLight()
+    G = u.create_generator()
+    D = u.create_discriminator()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
@@ -46,11 +46,6 @@ def main():
         print("Using model parameters in ./working_model")
         G.load_state_dict(torch.load("working_model/G.params"))
         D.load_state_dict(torch.load("working_model/D.params"))
-
-    # Export to cuda
-    if settings.CUDA:
-        G.cuda()
-        D.cuda()
 
     # Train with StageTrainer or FadeInTrainer
     s, (c, d) = [settings.STAGE, settings.PROGRESSION[settings.STAGE]]

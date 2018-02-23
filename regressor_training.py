@@ -6,14 +6,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import utils.datasets as datasets
-import utils.networks as nets
 import utils.visualizer as vis
 import settings
+import utils.utils as u
 
 from utils.utils import cyclic_data_iterator
 from torch.autograd import Variable
 
-dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
+dataset = u.get_data_set()
 if settings.GENERATED_PATH is not None:
     dataset = datasets.GeneratedWithMaps(settings.GENERATED_PATH)
     print("Using generated data set at: {}".format(settings.GENERATED_PATH))
@@ -23,7 +23,7 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           pin_memory=True,
                                           drop_last=True)
 
-R = nets.ImageToImage()
+R = u.create_regressor()
 criterion = nn.BCEWithLogitsLoss()
 
 if settings.CUDA:

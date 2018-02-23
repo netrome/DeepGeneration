@@ -7,21 +7,18 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
-import utils.networks as nets
-import utils.progressive_networks as pnets
 import utils.datasets as datasets
 import utils.visualizer as vis
+import utils.utils as u
 
 from utils.utils import cyclic_data_iterator
 
-encoder = nets.TrivialEncoderLight()
-decoder = pnets.TrivialGeneratorLight()
+encoder = u.create_generator()
+decoder = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)
 
 if settings.CUDA:
-    encoder.cuda()
-    decoder.cuda()
     toRGB.cuda()
     fromRGB.cuda()
 
