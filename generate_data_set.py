@@ -5,20 +5,20 @@ from torch.autograd import Variable
 import os
 
 import settings
-import utils.progressive_networks as pnets
+
+import utils.utils as u
 
 
 out_dir = "./output/"
 num_batches = 150
 
-G = pnets.TrivialGeneratorLight()
+G = u.create_generator()
 toRGB = nn.Conv2d(16, 2, 1)
 G.load_state_dict(torch.load(os.path.join(settings.MODEL_PATH, "G.params")))
 toRGB.load_state_dict(torch.load(os.path.join(settings.MODEL_PATH, "toRGB6.params")))
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 
 if settings.CUDA:
-    G.cuda()
     toRGB.cuda()
     latent = latent.cuda()
 

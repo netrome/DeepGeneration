@@ -2,19 +2,16 @@ import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-import utils.networks as nets
-import utils.datasets as datasets
+import utils.utils as u
 
 import settings
 
 
-R = nets.ImageToImage()
-R.load_state_dict(torch.load("working_model/R.params"))
+R = u.create_regressor()
+R.load_state_dict(torch.load(settings.REGRESSOR_PATH))
 
-if settings.CUDA:
-    R.cuda()
 
-dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
+dataset = u.get_data_set()
 if settings.GENERATED_PATH is not None:
     dataset = datasets.GeneratedWithMaps(settings.GENERATED_PATH)
     print("Using generated data set at: {}".format(settings.GENERATED_PATH))

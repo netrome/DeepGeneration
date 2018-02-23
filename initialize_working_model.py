@@ -13,10 +13,10 @@ import utils.utils as u
 
 
 def main():
-    G = progressive_networks.TrivialGeneratorLight()
-    D = progressive_networks.TrivialDiscriminatorLight()
-    E = networks.TrivialEncoderLight()
-    R = networks.ImageToImage()
+    G = u.create_generator()
+    D = u.create_discriminator()
+    E = u.create_encoder()
+    R = u.create_regressor()
 
     if settings.EQUALIZE_WEIGHTS:
         ws.scale_network(D, 0.2)
