@@ -4,8 +4,11 @@ from torch.autograd import Variable
 
 import utils.utils as u
 import utils.datasets as datasets
+import utils.ellipse_detector as eld
 
 import settings
+import numpy as np
+import json
 
 
 R = u.create_regressor()
@@ -24,27 +27,31 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           drop_last=True)
 
 
-def compute_euclidian_error(targets, predictions):
+def compute_euclidian_errors(targets, predictions):
     pred_map = predictions.data.round()
     target_map = targets.data
 
-    sum_euclidian_error = 0
+    errors = np.zeros(len(targets))
     for i in range(len(pred_map)):
-        p = pred_map[i].nonzero().float()
-        try:
-            px, py = p[:, 1].mean(), p[:, 2].mean()
-        except IndexError:
-            px, py = torch.ones(1)*127.5, torch.ones(1)*127.5
+        #p = pred_map[i].nonzero().float()
+        #try:
+        #    px, py = p[:, 1].mean(), p[:, 2].mean()
+        #except IndexError:
+        #    px, py = torch.ones(1)*127.5, torch.ones(1)*127.5
 
-        t = target_map[i].nonzero().float()
-        tx, ty = t[:, 1].mean(), t[:, 2].mean()
+        #t = target_map[i].nonzero().float()
+        #tx, ty = t[:, 1].mean(), t[:, 2].mean()
+        # Compare mean with found ellipse
+        px, py = eld.fit_ellipse(pred_map[i].cpu().numpy()[0])
+        tx, ty = eld.fit_ellipse(target_map[i].cpu().numpy()[0])
 
         euclidian_error = ((px - tx) ** 2 + (py - ty) ** 2) ** 0.5
-        sum_euclidian_error += euclidian_error
-    return sum_euclidian_error
+        errors[i] = float(euclidian_error)
+    return errors
 
 
-err = 0
+errors = np.zeros(len(dataset))
+idx = 0
 for i, batch in enumerate(data_loader):
     print("Processing batch {}/{}".format(i+1, len(data_loader)), end="\r")
     batch = Variable(batch)
@@ -55,8 +62,13 @@ for i, batch in enumerate(data_loader):
     targets = batch[:, 1, :, :].unsqueeze(1)
     predictions = F.sigmoid(R(patterns))
 
-    err += compute_euclidian_error(targets, predictions)
+    errs = compute_euclidian_errors(targets, predictions)
+    for err in errs:
+        errors[idx] = err
+        idx += 1
 
-err /= len(dataset)
+err = errors.mean()
 print("Average euclidian error: {}".format(err))
+json.dump(list(errors), open("evaluation_error.json", "w"))  # Save output for later analysis
+
 
