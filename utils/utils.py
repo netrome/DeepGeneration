@@ -64,7 +64,7 @@ def create_regressor():
 
 def get_data_set():
     if settings.REAL_DATA:
-        return data.DeepGazeData()
+        return data.DeepGazeData(settings.TEST_DATA)
     else:
         return data.SyntheticFullyAnnotated(settings.DATA_PATH)
 
