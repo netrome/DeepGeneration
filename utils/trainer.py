@@ -28,8 +28,8 @@ class StageTrainer:
         self.fromRGB = nn.Conv2d(2, self.conversion_depth, 1)
         self.latent_space = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
         self.latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1), volatile=True)
-        self.pred_real = Variable(torch.zeros(1))
-        self.pred_fake = Variable(torch.zeros(1))
+        self.pred_real = Variable(torch.zeros(1), volatile=True)
+        self.pred_fake = Variable(torch.zeros(1), volatile=True)
 
         if settings.CUDA:
             self.toRGB.cuda()

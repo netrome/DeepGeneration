@@ -20,8 +20,8 @@ toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 
-pred_fake_history = Variable(torch.zeros(1))
-pred_real_history = Variable(torch.zeros(1))
+pred_fake_history = Variable(torch.zeros(1), volatile=True)
+pred_real_history = Variable(torch.zeros(1), volatile=True)
 
 if settings.CUDA:
     toRGB.cuda()
@@ -72,7 +72,7 @@ data_loader = torch.utils.data.DataLoader(dataset,
                                           drop_last=True)
 
 
-def update_visualization(visualizer, batch, fake, pred_fake, pred_real):
+def update_visualization(visualizer, batch, fake, decoded, pred_fake, pred_real):
     # TODO move this to utils or visualizer to save code
     batch_shape = list(batch.shape)
     batch_shape[1] = 1
@@ -84,12 +84,15 @@ def update_visualization(visualizer, batch, fake, pred_fake, pred_real):
         batch[:, 0].data.cpu().contiguous().view(batch_shape), "real_batch")
 
     fake.data.clamp_(0, 1)
+    #decoded.data.clamp_(0, 1)
     visualizer.update_image(fake[0][0].data.cpu(), "fake_img")
     visualizer.update_image(fake[0][1].data.cpu(), "fake_map")
     visualizer.update_image(fake[0].mean(0).data.cpu(), "fake_cat")
 
     visualizer.update_batch(
         fake[:, 0].data.cpu().contiguous().view(batch_shape), "fake_batch")
+    #visualizer.update_batch(
+    #   decoded[:, 0].data.cpu().contiguous().view(batch_shape), "decoded_batch")
 
     visualizer.update_loss(pred_real.data.cpu(), pred_fake.data.cpu())
 
@@ -97,7 +100,7 @@ def update_visualization(visualizer, batch, fake, pred_fake, pred_real):
 update_state = 0
 for chunk in range(settings.CHUNKS):
     print("Chunk {}/{}    ".format(chunk, settings.CHUNKS))
-    batch, fake = None, None
+    batch, fake, decoded = None, None, None
     for i, batch in enumerate(cyclic_data_iterator(data_loader, settings.STEPS)):
         batch = Variable(batch)
         if settings.CUDA:
@@ -144,7 +147,7 @@ for chunk in range(settings.CHUNKS):
         if i % 10 == 9:
             print("Step {}/{}   ".format(i + 1, settings.STEPS), end="\r")
 
-    update_visualization(visualizer, batch, fake, pred_fake_history, pred_real_history)
+    update_visualization(visualizer, batch, fake, decoded, pred_fake_history, pred_real_history)
 
 # Save models
 print("Saving rgb layers, {}".format(time.ctime()))
