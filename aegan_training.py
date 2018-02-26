@@ -5,6 +5,7 @@ import time
 import settings
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.autograd import Variable
 
 import utils.datasets as datasets
@@ -84,15 +85,15 @@ def update_visualization(visualizer, batch, fake, decoded, pred_fake, pred_real)
         batch[:, 0].data.cpu().contiguous().view(batch_shape), "real_batch")
 
     fake.data.clamp_(0, 1)
-    #decoded.data.clamp_(0, 1)
+    decoded.data.clamp_(0, 1)
     visualizer.update_image(fake[0][0].data.cpu(), "fake_img")
     visualizer.update_image(fake[0][1].data.cpu(), "fake_map")
     visualizer.update_image(fake[0].mean(0).data.cpu(), "fake_cat")
 
     visualizer.update_batch(
         fake[:, 0].data.cpu().contiguous().view(batch_shape), "fake_batch")
-    #visualizer.update_batch(
-    #   decoded[:, 0].data.cpu().contiguous().view(batch_shape), "decoded_batch")
+    visualizer.update_batch(
+       decoded[:, 0].data.cpu().contiguous().view(batch_shape), "decoded_batch")
 
     visualizer.update_loss(pred_real.data.cpu(), pred_fake.data.cpu())
 
@@ -112,13 +113,13 @@ for chunk in range(settings.CHUNKS):
 
         if update_state == settings.DISCRIMINATOR_ITERATIONS:
             update_state = 0
-            encoded = E(fromRGB(batch))[0]  # Only use mean in this framework
+            encoded = E(fromRGB(batch))[0]  # Only use mean for AEGAN
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
-            drift_loss = torch.mean(encoded.norm(2, 1)) * 1e-3
+            drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
             rec_loss = reconstruction_loss(decoded, batch)
             adv_loss = torch.mean((pred_fake - 1).pow(2))
-            loss = rec_loss + adv_loss + drift_loss
+            loss = rec_loss + drift_loss + adv_loss
 
             # Perform an optimization step
             opt_G.zero_grad()
@@ -138,8 +139,8 @@ for chunk in range(settings.CHUNKS):
             loss = torch.mean((pred_real - 1)**2 + pred_fake**2)
 
             # Perform an optimization step
-            opt_D.zero_grad()
             opt_fromRGB.zero_grad()
+            opt_D.zero_grad()
             loss.backward()
             opt_D.step()
             opt_fromRGB.step()
