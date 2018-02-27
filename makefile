@@ -148,6 +148,12 @@ overnight_aegan:
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip
 
+aegan_cont:
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip
+	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip
+	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip
+
 regressor:
 	python initialize_working_model.py
 	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip $(extra) 
