@@ -154,6 +154,31 @@ aegan_cont:
 	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip
 
+overnight_aegan_real:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 204 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 204 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 205 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 205 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --real-data
+
 regressor:
 	python initialize_working_model.py
 	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip $(extra) 

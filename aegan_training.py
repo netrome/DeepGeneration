@@ -67,6 +67,7 @@ dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
 if settings.REAL_DATA:
     dataset = datasets.DeepGazeData()
 data_loader = torch.utils.data.DataLoader(dataset,
+                                          num_workers=8,
                                           batch_size=settings.BATCH_SIZE,
                                           shuffle=True,
                                           pin_memory=True,
