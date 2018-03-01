@@ -73,11 +73,11 @@ CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
 
 # Network architectures
-GENERATOR = tiny.DSDecoder
+GENERATOR = prog.SamplingGeneratorLight
 
-DISCRIMINATOR = tiny.DSDiscriminator
+DISCRIMINATOR = prog.SamplingDiscriminatorLight
 
-ENCODER = tiny.DSEncoder 
+ENCODER = nets.SamplingEncoderLight
 
 REGRESSOR = nets.ImageToImage
 

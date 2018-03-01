@@ -29,24 +29,54 @@ class DSConvTranspose(nn.Module):
     def forward(self, batch):
         return self.depthwise(self.pad(self.widthwise_fc(batch)))
 
+class DSDown(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.activation = nn.LeakyReLU()
+        self.think = DSConv(in_channels, out_channels, 3, padding=1)
+        self.down = DSConv(out_channels, out_channels, 2, stride=2)
+    
+    def forward(self, batch):
+        return self.down(self.activation(self.think(batch)))
+
+class DSUp(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.activation = nn.LeakyReLU()
+        self.up = DSConvTranspose(in_channels, in_channels, 2, stride=2)
+        self.think = DSConv(in_channels, out_channels, 3, padding=1)
+    
+    def forward(self, batch):
+        return self.think(self.activation(F.normalize(self.up(batch))))
+
 
 # Encoders ---------------------------------------
 class DSEncoder(nn.Module):
     def __init__(self):
         super().__init__()
+        self.activation = nn.LeakyReLU()
 
-        self.down1 = DSConv(16, 32, 4, padding=0, stride=4)
-        self.down2 = DSConv(32, 64, 4, padding=0, stride=4)
-        self.down3 = DSConv(64, 128, 4, padding=0, stride=4)
+        self.down1 = DSConv(16, 32, 4, padding=1, stride=2)
+        self.down2 = DSConv(32, 64, 4, padding=1, stride=2)
+        self.down3 = DSConv(64, 80, 4, padding=1, stride=2)
+        self.down4 = DSConv(80, 96, 4, padding=1, stride=2)
+        self.down5 = DSConv(96, 112, 4, padding=1, stride=2)
+        self.down6 = DSConv(112, 128, 4, padding=1, stride=2)
 
         self.deflate = nn.Conv2d(128, 128, 4)
+
+        self.low_think = DSConv(128, 128, 3, padding=1)
 
         self.to_mean = nn.Linear(128, 128)
 
     def forward(self, img):
-        img = F.leaky_relu(self.down1(img), 0.2)
-        img = F.leaky_relu(self.down2(img), 0.2)
-        img = F.leaky_relu(self.down3(img), 0.2)
+        img = self.activation(self.down1(img))
+        img = self.activation(self.down2(img))
+        img = self.activation(self.down3(img))
+        img = self.activation(self.down4(img))
+        img = self.activation(self.down5(img))
+        img = self.activation(self.down6(img))
+        img = self.activation(self.low_think(img))
         vec = self.deflate(img)
         return self.to_mean(vec.view(-1, 128)), None
 
@@ -54,18 +84,28 @@ class DSEncoder(nn.Module):
 class DSDecoder(nn.Module):
     def __init__(self):
         super().__init__()
+        self.activation = nn.LeakyReLU()
 
-        self.inflate = nn.ConvTranspose2d(128, 128, 4) # Latent -> 4x4
+        self.inflate = nn.ConvTranspose2d(128, 128, 4, groups=128) 
+        self.low_think = DSConv(128, 128, 3, padding=1)
 
-        self.up1 = DSConvTranspose(128, 64, 4, padding=0, stride=4) #4x4->16x16
-        self.up2 = DSConvTranspose(64, 32, 4, padding=0, stride=4) #16x16->64x64
-        self.up3 = DSConvTranspose(32, 16, 4, padding=0, stride=4) #64x64->256x256
+        self.up1 = DSConvTranspose(128, 112, 2, padding=0, stride=2)
+        self.up2 = DSConvTranspose(112, 96, 2, padding=0, stride=2)
+        self.up3 = DSConvTranspose(96, 80, 2, padding=0, stride=2)
+        self.up4 = DSConvTranspose(80, 64, 2, padding=0, stride=2)
+        self.up5 = DSConvTranspose(64, 32, 2, padding=0, stride=2)
+        self.up6 = DSConvTranspose(32, 16, 2, padding=0, stride=2)
 
     def forward(self, latent):
-        img = F.leaky_relu(F.normalize(self.inflate(latent)), 0.2)
-        img = F.leaky_relu(F.normalize(self.up1(img)), 0.2)
-        img = F.leaky_relu(F.normalize(self.up2(img)), 0.2)
-        img = F.leaky_relu(F.normalize(self.up3(img)), 0.2)
+        img = F.normalize(self.activation(self.inflate(latent)))
+                          
+        img = F.normalize(self.activation(self.low_think(img)))
+        img = F.normalize(self.activation(self.up1(img)))
+        img = F.normalize(self.activation(self.up2(img)))
+        img = F.normalize(self.activation(self.up3(img)))
+        img = F.normalize(self.activation(self.up4(img)))
+        img = F.normalize(self.activation(self.up5(img)))
+        img = F.normalize(self.activation(self.up6(img)))
         return img
 
 
@@ -73,19 +113,34 @@ class DSDecoder(nn.Module):
 class DSDiscriminator(nn.Module):
     def __init__(self):
         super().__init__()
+        self.activation = nn.LeakyReLU()
 
-        self.down1 = DSConv(16, 32, 4, padding=0, stride=4)
-        self.down2 = DSConv(32, 64, 4, padding=0, stride=4)
-        self.down3 = DSConv(64, 128, 4, padding=0, stride=4)
+        self.down1 = DSConv(16, 32, 4, padding=1, stride=2)
+        self.down2 = DSConv(32, 64, 4, padding=1, stride=2)
+        self.down3 = DSConv(64, 80, 4, padding=1, stride=2)
+        self.down4 = DSConv(80, 96, 4, padding=1, stride=2)
+        self.down5 = DSConv(96, 112, 4, padding=1, stride=2)
+        self.down6 = DSConv(112, 128, 4, padding=1, stride=2)
 
         self.deflate = nn.Conv2d(128, 128, 4)
+
+        self.low_think = DSConv(128, 128, 3, padding=1)
 
         self.to_pred = nn.Linear(128, 1)
 
     def forward(self, img):
-        img = F.leaky_relu(self.down1(img), 0.2)
-        img = F.leaky_relu(self.down2(img), 0.2)
-        img = F.leaky_relu(self.down3(img), 0.2)
+        img = self.activation(self.down1(img))
+        img = self.activation(self.down2(img))
+        img = self.activation(self.down3(img))
+        img = self.activation(self.down4(img))
+        img = self.activation(self.down5(img))
+        img = self.activation(self.down6(img))
+
+        #minibatch_std = img.std(0).mean().expand(img.shape[0], 1, 4, 4)
+        #img = torch.cat([img, minibatch_std], dim=1)
+
+        img = self.activation(self.low_think(img))
         vec = self.deflate(img)
+
         return self.to_pred(vec.view(-1, 128))
 
