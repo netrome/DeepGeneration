@@ -13,8 +13,8 @@ import utils.utils as u
 
 from utils.utils import cyclic_data_iterator
 
-encoder = u.create_generator()
-decoder = u.create_discriminator()
+encoder = u.create_encoder()
+decoder = u.create_generator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)
 
