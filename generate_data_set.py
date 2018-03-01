@@ -31,10 +31,10 @@ for i in range(num_batches):
     for rgb in batch:
         num += 1
         img = rgb[0].clamp(0, 1)
-        map = rgb[1]
+        heatmap = rgb[1]
 
         torchvision.utils.save_image(img.data, os.path.join(out_dir, "image{}.png".format(num)))
-        torchvision.utils.save_image(map.data, os.path.join(out_dir, "map{}.png".format(num)))
+        torchvision.utils.save_image(heatmap.data, os.path.join(out_dir, "map{}.png".format(num)))
 
 
 
