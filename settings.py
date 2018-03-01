@@ -1,5 +1,8 @@
 import argparse
 import torch
+import utils.tiny_networks as tiny
+import utils.progressive_networks as prog
+import utils.networks as nets
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cuda", help="enable cuda", action="store_true")
@@ -68,6 +71,15 @@ STAGE = int(args.stage)
 
 CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
+
+# Network architectures
+GENERATOR = tiny.DSDecoder
+
+DISCRIMINATOR = tiny.DSDiscriminator
+
+ENCODER = tiny.DSEncoder 
+
+REGRESSOR = nets.ImageToImage
 
 # Stage -> depth + downscale factor
 PROGRESSION = {

@@ -47,19 +47,19 @@ def _create_network(network_class):
 
 
 def create_generator():
-    return _create_network(TrivialGeneratorLight)
+    return _create_network(settings.GENERATOR)
 
 
 def create_discriminator():
-    return _create_network(TrivialDiscriminatorLight)
+    return _create_network(settings.DISCRIMINATOR)
 
 
 def create_encoder():
-    return _create_network(TrivialEncoderLight)
+    return _create_network(settings.ENCODER)
 
 
 def create_regressor():
-    return _create_network(ImageToImage)
+    return _create_network(settings.REGRESSOR)
 
 
 def get_data_set():
