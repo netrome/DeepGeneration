@@ -358,7 +358,7 @@ class SamplingDiscriminatorLight(nn.Module):
         levels -= 1
         img = alpha * img + (1 - alpha) * small
         for i in range(levels):
-            img = self.activation(self.blocks[start + i](img))
+            img = self.blocks[start + i](img)
 
         # Minibatch stddev
         minibatch_std = img.std(0).mean().expand(img.shape[0], 1, 4, 4)
