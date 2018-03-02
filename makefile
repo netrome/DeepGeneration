@@ -201,6 +201,60 @@ aegan_real_cont:
 	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip --real-data
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --real-data
 
+aegan_long:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
+
+aegan_real_long:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 401 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 402 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 403 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 404 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip --real-data
+	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip --real-data
+
 regressor:
 	python initialize_working_model.py
 	python -u regressor_training.py --cuda --chunks 50 --steps 100 --wip $(extra) 
