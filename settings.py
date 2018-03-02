@@ -2,6 +2,8 @@ import argparse
 import torch
 import utils.tiny_networks as tiny
 import utils.progressive_networks as prog
+import utils.residual_networks as res
+import utils.experimental_networks as exp
 import utils.networks as nets
 
 parser = argparse.ArgumentParser()
@@ -73,11 +75,11 @@ CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
 
 # Network architectures
-GENERATOR = prog.SamplingGeneratorLight
+GENERATOR = prog.SamplingGeneratorLight 
 
-DISCRIMINATOR = prog.SamplingDiscriminatorLight
+DISCRIMINATOR = prog.TrivialDiscriminatorLight
 
-ENCODER = nets.SamplingEncoderLight
+ENCODER = nets.TrivialEncoderLight
 
 REGRESSOR = nets.ImageToImage
 
