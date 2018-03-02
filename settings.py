@@ -75,7 +75,7 @@ CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
 
 # Network architectures
-GENERATOR = prog.SamplingGeneratorLight 
+GENERATOR = prog.TrivialGeneratorLight
 
 DISCRIMINATOR = prog.TrivialDiscriminatorLight
 
