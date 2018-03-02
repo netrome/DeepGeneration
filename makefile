@@ -141,7 +141,7 @@ overnight_aegan:
 	python -u aegan_training.py --cuda --chunks 205 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip
-	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip
+	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip  # Karras run resumed from here
 	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip
