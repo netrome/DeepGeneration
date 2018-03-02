@@ -23,8 +23,8 @@ class UpsamplingUpBlock(nn.Module):
 
     def forward(self, feature_map):
         up = F.upsample(feature_map, scale_factor=2)
-        img = self.activation(F.normalize(self.thinner(up)))
-        return self.activation(F.normalize(self.thinker(img)))
+        img = F.normalize(self.activation(self.thinner(up)))
+        return F.normalize(self.activation(self.thinker(img)))
 
 
 class TrivialDownBlock(nn.Module):
@@ -285,7 +285,7 @@ class SamplingGeneratorLight(nn.Module):
 
     def forward(self, z, levels=6):
         img = self.activation(self.inflate(z))
-        img = self.activation(F.normalize(self.low_conv(img)))
+        img = F.normalize(self.activation(self.low_conv(img)))
 
         for i in range(levels):
             img = self.blocks[i](img)
