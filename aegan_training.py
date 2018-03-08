@@ -155,8 +155,8 @@ for chunk in range(settings.CHUNKS):
         if i % 10 == 9:
             print("Step {}/{}   ".format(i + 1, settings.STEPS), end="\r")
 
-    state["history_real"].append(float(stage.pred_real))
-    state["history_fake"].append(float(stage.pred_fake))
+    state["history_real"].append(float(pred_real_history))
+    state["history_fake"].append(float(pred_fake_history))
     update_visualization(visualizer, batch, fake, decoded, pred_fake_history, pred_real_history)
     save_fake_reference_batch(visualizer.point)
 
