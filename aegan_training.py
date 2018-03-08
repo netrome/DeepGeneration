@@ -22,8 +22,8 @@ toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
-positive_targets = torch.ones(settings.BATCH_SIZE, 1)
-negative_targets = torch.zeros(settings.BATCH_SIZE, 1)
+positive_targets = Variable(torch.ones(settings.BATCH_SIZE, 1))
+negative_targets = Variable(torch.zeros(settings.BATCH_SIZE, 1))
 
 pred_fake_history = Variable(torch.zeros(1), volatile=True)
 pred_real_history = Variable(torch.zeros(1), volatile=True)
@@ -130,7 +130,7 @@ for chunk in range(settings.CHUNKS):
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
-            gen_drift_loss = torch.mean(fake.pow(2)) * 1e-4
+            gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch)
             adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
             loss = rec_loss + drift_loss + adv_loss + gen_drift_loss
