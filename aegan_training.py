@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+from torchvision.utils import make_grid, save_image
 
 import utils.datasets as datasets
 import utils.visualizer as vis
@@ -99,7 +100,7 @@ def save_fake_reference_batch(point):
     torch.manual_seed(1337)
     latent_ref_point.data.normal_()
     torch.manual_seed(int(time.clock()*1e6))
-    fake = toRGB(G(self.leatent_ref_point))
+    fake = toRGB(G(latent_ref_point))
     batch_shape = list(fake.shape)
     batch_shape[1] = 1
     single = make_grid(fake[:, 0].data.cpu().contiguous().view(batch_shape))
