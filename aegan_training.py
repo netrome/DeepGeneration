@@ -20,6 +20,7 @@ D = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
+latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
 
 pred_fake_history = Variable(torch.zeros(1), volatile=True)
 pred_real_history = Variable(torch.zeros(1), volatile=True)
@@ -28,6 +29,7 @@ if settings.CUDA:
     toRGB.cuda()
     fromRGB.cuda()
     latent = latent.cuda()
+    latent_ref_point = latent_ref_point.cuda()
     pred_fake_history = pred_fake_history.cuda()
     pred_real_history = pred_real_history.cuda()
 
@@ -36,14 +38,6 @@ opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=sett
 opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
-
-#optimizer = torch.optim.Adamax([
-#    {"params": E.parameters()},
-#    {"params": G.parameters()},
-#    {"params": D.parameters()},
-#    {"params": toRGB.parameters()},
-#    {"params": fromRGB.parameters()},
-#], lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()  # Better than MSE
 
@@ -99,6 +93,18 @@ def update_visualization(visualizer, batch, fake, decoded, pred_fake, pred_real)
     visualizer.update_loss(pred_real.data.cpu(), pred_fake.data.cpu())
 
 
+def save_fake_reference_batch(point):
+    if not settings.WORKING_MODEL:
+        raise RuntimeError("Won't save reference batch without working model")
+    torch.manual_seed(1337)
+    latent_ref_point.data.normal_()
+    torch.manual_seed(int(time.clock()*1e6))
+    fake = toRGB(G(self.leatent_ref_point))
+    batch_shape = list(fake.shape)
+    batch_shape[1] = 1
+    single = make_grid(fake[:, 0].data.cpu().contiguous().view(batch_shape))
+    save_image(single, "working_model/timelapse/fake_batch{}.png".format(point))
+
 update_state = 0
 for chunk in range(settings.CHUNKS):
     print("Chunk {}/{}    ".format(chunk, settings.CHUNKS))
@@ -149,7 +155,10 @@ for chunk in range(settings.CHUNKS):
         if i % 10 == 9:
             print("Step {}/{}   ".format(i + 1, settings.STEPS), end="\r")
 
+    state["history_real"].append(float(stage.pred_real))
+    state["history_fake"].append(float(stage.pred_fake))
     update_visualization(visualizer, batch, fake, decoded, pred_fake_history, pred_real_history)
+    save_fake_reference_batch(visualizer.point)
 
 # Save models
 print("Saving rgb layers, {}".format(time.ctime()))
