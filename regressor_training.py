@@ -17,6 +17,8 @@ dataset = u.get_data_set()
 if settings.GENERATED_PATH is not None:
     dataset = datasets.GeneratedWithMaps(settings.GENERATED_PATH)
     print("Using generated data set at: {}".format(settings.GENERATED_PATH))
+    if settings.CONCAT_DATA:
+        dataset = torch.utils.data.ConcatDataset([dataset, u.get_data_set()])
 data_loader = torch.utils.data.DataLoader(dataset,
                                           batch_size=settings.BATCH_SIZE,
                                           shuffle=True,

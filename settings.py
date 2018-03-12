@@ -30,6 +30,7 @@ parser.add_argument("--config", help="external configuration", action="store")
 parser.add_argument("--model", help="model path", action="store")
 parser.add_argument("--generated", help="generated data path", action="store")
 parser.add_argument("--regressor", help="regressor path", action="store")
+parser.add_argument("--concat", help="concatenate real and fake data", action="store_true")
 args = parser.parse_args()
 
 
@@ -38,6 +39,8 @@ DATA_PATH = "~/Data/DeepGeneration1"
 REAL_DATA = args.real_data
 
 TEST_DATA = args.test
+
+CONCAT_DATA = args.concat
 
 CONFIG_PATH = args.config
 
