@@ -228,6 +228,13 @@ aegan_long:
 	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
 	python -u aegan_training.py --cuda --chunks 405 --steps 200 --wip
 
+aegan_short:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 200 --steps 25 --wip
+	python -u aegan_training.py --cuda --chunks 200 --steps 25 --wip
+	python -u aegan_training.py --cuda --chunks 200 --steps 25 --wip
+	python -u aegan_training.py --cuda --chunks 200 --steps 25 --wip
+
 aegan_real_long:
 	python initialize_working_model.py
 	python -u aegan_training.py --cuda --chunks 400 --steps 200 --wip --real-data

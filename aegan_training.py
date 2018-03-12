@@ -18,6 +18,7 @@ from utils.utils import cyclic_data_iterator
 G = u.create_generator()
 E = u.create_encoder()
 D = u.create_discriminator()
+
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
@@ -38,8 +39,8 @@ if settings.CUDA:
     positive_targets = positive_targets.cuda()
     negative_targets = negative_targets.cuda()
 
-opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-6)
-opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-3)
+opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
