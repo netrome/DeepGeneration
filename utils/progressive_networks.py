@@ -213,7 +213,7 @@ class TrivialDiscriminatorLight(nn.Module):
     def forward(self, img, levels=6):
         start = 6 - levels
         for i in range(levels):
-            img = F.dropout(self.activation(self.blocks[start + i](img)))
+            img = F.dropout(self.activation(self.blocks[start + i](img)), p=0.1)
 
         # Minibatch stddev
         minibatch_std = img.std(0).mean().expand(img.shape[0], 1, 4, 4)
