@@ -29,6 +29,7 @@ negative_targets = Variable(torch.zeros(settings.BATCH_SIZE, 1))
 #toRGB.weight.register_hook(lambda grad: print(grad.norm()))
 #fromRGB.weight.register_hook(lambda grad: print(grad.norm()))
 #D.register_forward_hook(lambda _1, inp, _2: print(inp[0].norm()))
+#toRGB.register_forward_hook(lambda _1, inp, _2: print(inp[0].norm()))
 
 pred_fake_history = Variable(torch.zeros(1), volatile=True)
 pred_real_history = Variable(torch.zeros(1), volatile=True)
@@ -43,11 +44,11 @@ if settings.CUDA:
     positive_targets = positive_targets.cuda()
     negative_targets = negative_targets.cuda()
 
-opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-6)
-opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-3)
+opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
-opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-3)
-opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-3)
+opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()  # Better than MSE
 adversarial_loss = nn.BCEWithLogitsLoss()
