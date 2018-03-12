@@ -38,8 +38,8 @@ if settings.CUDA:
     positive_targets = positive_targets.cuda()
     negative_targets = negative_targets.cuda()
 
-opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
-opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
+opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-6)
+opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS, weight_decay=1e-3)
 opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
