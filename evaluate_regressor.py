@@ -23,9 +23,9 @@ if settings.GENERATED_PATH is not None:
 
 data_loader = torch.utils.data.DataLoader(dataset,
                                           batch_size=32,
-                                          shuffle=True,
+                                          shuffle=False,  # No need to shuffle during test
                                           pin_memory=True,
-                                          drop_last=True)
+                                          drop_last=False)  # Should not drop last
 
 
 def compute_euclidian_errors(targets, predictions):
