@@ -22,6 +22,8 @@ toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
+positive_targets = Variable(torch.ones(settings.BATCH_SIZE, 1))
+negative_targets = Variable(torch.zeros(settings.BATCH_SIZE, 1))
 
 pred_fake_history = Variable(torch.zeros(1), volatile=True)
 pred_real_history = Variable(torch.zeros(1), volatile=True)
@@ -33,6 +35,8 @@ if settings.CUDA:
     latent_ref_point = latent_ref_point.cuda()
     pred_fake_history = pred_fake_history.cuda()
     pred_real_history = pred_real_history.cuda()
+    positive_targets = positive_targets.cuda()
+    negative_targets = negative_targets.cuda()
 
 opt_G = torch.optim.Adamax(G.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_D = torch.optim.Adamax(D.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
@@ -41,6 +45,7 @@ opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, be
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()  # Better than MSE
+adversarial_loss = nn.BCEWithLogitsLoss()
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
@@ -125,9 +130,10 @@ for chunk in range(settings.CHUNKS):
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
+            gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch)
-            adv_loss = torch.mean((pred_fake - 1).pow(2))
-            loss = rec_loss + drift_loss + adv_loss
+            adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
+            loss = rec_loss + drift_loss + adv_loss + gen_drift_loss
 
             # Perform an optimization step
             opt_G.zero_grad()
@@ -144,7 +150,7 @@ for chunk in range(settings.CHUNKS):
             pred_real = D(fromRGB(batch))
             pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
             pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
-            loss = torch.mean((pred_real - 1)**2 + pred_fake**2)
+            loss = adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets) #torch.mean((pred_real - 1)**2 + pred_fake**2)
 
             # Perform an optimization step
             opt_fromRGB.zero_grad()
