@@ -1,3 +1,4 @@
+# Usage: python evaluate_regressor.py --cuda --regressor ~/path/to/regressor/R.params  [--real-data --test | --generated ~/Data/DG1]
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -49,6 +50,21 @@ def compute_euclidian_errors(targets, predictions):
         errors[i] = float(euclidian_error)
     return errors
 
+def jaccard_distance(targets, predictions):
+    pred_map = predictions.data.round()
+    target_map = targets.data
+
+    errors = np.zeros(len(pred_map))
+    for i in range(len(pred_map)):
+        intersection = torch.sum((pred_map[i] + target_map[i]) > 1)
+        union = torch.sum((pred_map[i] + target_map[i]) >= 1)
+        errors[i] = float(1 - intersection/union)
+
+    return errors
+
+
+error_function = jaccard_distance  # Toggle error here
+
 
 errors = np.zeros(len(dataset))
 idx = 0
@@ -62,13 +78,13 @@ for i, batch in enumerate(data_loader):
     targets = batch[:, 1, :, :].unsqueeze(1)
     predictions = F.sigmoid(R(patterns))
 
-    errs = compute_euclidian_errors(targets, predictions)
+    errs = error_function(targets, predictions)
     for err in errs:
         errors[idx] = err
         idx += 1
 
 err = errors.mean()
-print("Average euclidian error: {}".format(err))
+print("Average error: {}".format(err))
 json.dump(list(errors), open("evaluation_error.json", "w"))  # Save output for later analysis
 
 
