@@ -137,7 +137,7 @@ class HelenData(Dataset):
         #size_multiplier = min(points[:1].max() - points[:1].min())
         constraint1 = int((points[:,1].max() - points[:,1].min()) // 256)
         constraint2 = int((points[:, 0].max() - points[:, 0].min()) // 256)
-        size_multiplier = min(constraint1, constraint2)
+        size_multiplier = max(min(constraint1, constraint2), 1)
 
         for point in meta[1:]:
             x, y = point
@@ -150,16 +150,20 @@ class HelenData(Dataset):
         # Crop and downsample image
         random.seed()
 
-        w, h = tot.shape[1], tot.shape[2]
-        y, x = random.choice(meta[1:])
+        w, h = tot.shape[1] // size_multiplier, tot.shape[2] // size_multiplier
+        x, y = random.choice(meta[1:])
 
         start = (x // size_multiplier - 128, y // size_multiplier - 128)
-        if start[0] < 0 or start[0] + 256 > w or start[1] < 0 or start[1] + 256 > w:
-            start = (128, 128)
+        if start[0] < 0 or start[0] + 256 > w or start[1] < 0 or start[1] + 256 > h:
+            start = (w // 2 - 128, h // 2 - 128)
         #start = (random.randint(0, w-256), random.randint(0, h-256))
 
         tot = F.avg_pool2d(Variable(tot, volatile=True), 1, stride=size_multiplier).data  # Downsample image
-        return tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]  # Make this return statement
+        tot = tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]  # Make this return statement
+        #print("Start: {}, tot: {}".format(start, tot.shape))
+        if not (tot.shape[1] == 256 and tot.shape[2] == 256):
+            return self[0]
+        return tot
 
 
 if __name__ == "__main__":
