@@ -151,7 +151,7 @@ class HelenData(Dataset):
         random.seed()
 
         w, h = tot.shape[1] // size_multiplier, tot.shape[2] // size_multiplier
-        x, y = random.choice(meta[1:])
+        y, x = random.choice(meta[1:])
 
         start = (x // size_multiplier - 128, y // size_multiplier - 128)
         if start[0] < 0 or start[0] + 256 > w or start[1] < 0 or start[1] + 256 > h:
@@ -162,6 +162,7 @@ class HelenData(Dataset):
         tot = tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]  # Make this return statement
         #print("Start: {}, tot: {}".format(start, tot.shape))
         if not (tot.shape[1] == 256 and tot.shape[2] == 256):
+            print("Fallback")
             return self[0]
         return tot
 
