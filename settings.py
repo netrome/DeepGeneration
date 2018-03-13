@@ -25,6 +25,7 @@ parser.add_argument("--ws", help="use weight equalization", action="store_true")
 parser.add_argument("--sn", help="spectral normalization in D", action="store_true")
 parser.add_argument("--fade-in", help="fade in next layers", action="store_true")
 parser.add_argument("--real-data", help="use real data", action="store_true")
+parser.add_argument("--helen-data", help="use helen data", action="store_true")
 parser.add_argument("--test", help="use test data", action="store_true")
 parser.add_argument("--config", help="external configuration", action="store")
 parser.add_argument("--model", help="model path", action="store")
@@ -37,6 +38,8 @@ args = parser.parse_args()
 DATA_PATH = "~/Data/DeepGeneration1"
 
 REAL_DATA = args.real_data
+
+HELEN_DATA = args.helen_data
 
 TEST_DATA = args.test
 
