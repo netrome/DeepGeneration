@@ -63,9 +63,7 @@ if settings.WORKING_MODEL:
     fromRGB.load_state_dict(torch.load("working_model/fromRGB6.params"))
     print("Loaded RGB layers too")
 
-dataset = datasets.SyntheticFullyAnnotated(settings.DATA_PATH)
-if settings.REAL_DATA:
-    dataset = datasets.DeepGazeData()
+dataset = u.get_data_set()
 data_loader = torch.utils.data.DataLoader(dataset,
                                           num_workers=8,
                                           batch_size=settings.BATCH_SIZE,

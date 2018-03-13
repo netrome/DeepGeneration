@@ -179,6 +179,31 @@ overnight_aegan_real:
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --real-data
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --real-data
 
+overnight_aegan_helen:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 204 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 204 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 205 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 205 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 206 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 207 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 208 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --helen-data
+	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip --helen-data
+
 aegan_real_cont:
 	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
 	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip --real-data
