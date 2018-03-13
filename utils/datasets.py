@@ -138,7 +138,6 @@ class HelenData(Dataset):
         constraint1 = int((points[:,1].max() - points[:,1].min()) // 256)
         constraint2 = int((points[:, 0].max() - points[:, 0].min()) // 256)
         size_multiplier = min(constraint1, constraint2)
-        print(size_multiplier)
 
         for point in meta[1:]:
             x, y = point
@@ -159,16 +158,9 @@ class HelenData(Dataset):
             start = (128, 128)
         #start = (random.randint(0, w-256), random.randint(0, h-256))
 
-        print(start)
         tot = F.avg_pool2d(Variable(tot, volatile=True), 1, stride=size_multiplier).data  # Downsample image
-        tot = tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]  # Make this return statement
+        return tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]  # Make this return statement
 
-        # tmp show concat image
-        concat = torch.mean(tot, dim=0)
-        import torchvision
-        torchvision.utils.save_image(concat, "/tmp/concat.png")
-
-        return meta
 
 if __name__ == "__main__":
     data = HelenData()
