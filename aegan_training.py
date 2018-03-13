@@ -128,10 +128,10 @@ for chunk in range(settings.CHUNKS):
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
-            gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
+            #gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch)
             adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
-            loss = rec_loss + drift_loss + adv_loss + gen_drift_loss
+            loss = rec_loss + drift_loss + adv_loss #+ gen_drift_loss
 
             # Perform an optimization step
             opt_G.zero_grad()
