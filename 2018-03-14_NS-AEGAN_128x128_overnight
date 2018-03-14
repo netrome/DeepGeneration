@@ -1,0 +1,8 @@
+python initialize_working_model.py
+Saved networks and RGB layers in ./working_model
+python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip
+Using model parameters in ./working_model
+Loaded RGB layers too
+Chunk 0/200    
+Step 10/100   Step 20/100   Step 30/100   Step 40/100   Step 50/100   Step 60/100   Step 70/100   Step 80/100   Step 90/100   Step 100/100   Chunk 1/200    
+Step 10/100   Step 20/100   Step 30/100   Step 40/100   Step 50/100   makefile:127: recipe for target 'overnight_aegan' failed
