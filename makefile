@@ -154,6 +154,13 @@ aegan_cont:
 	python -u aegan_training.py --cuda --chunks 202 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 203 --steps 100 --wip
 
+aegan_debug:
+	python initialize_working_model.py
+	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
+
 aegan_helen_debug:
 	python initialize_working_model.py
 	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip --helen-data

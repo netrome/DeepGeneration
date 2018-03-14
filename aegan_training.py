@@ -44,7 +44,7 @@ opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=sett
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
-reconstruction_loss = nn.L1Loss()  # Better than MSE
+reconstruction_loss = nn.MSELoss()
 adversarial_loss = nn.BCEWithLogitsLoss()
 
 visualizer = vis.Visualizer()
@@ -128,10 +128,10 @@ for chunk in range(settings.CHUNKS):
             decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
 
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
-            gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
-            rec_loss = reconstruction_loss(decoded, batch)
+            #gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
+            rec_loss = reconstruction_loss(decoded*10, batch*10) # Scale maps to increase error slope
             adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
-            loss = rec_loss + drift_loss + adv_loss + gen_drift_loss
+            loss = rec_loss + drift_loss + adv_loss #+ gen_drift_loss
 
             # Perform an optimization step
             opt_G.zero_grad()

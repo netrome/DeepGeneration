@@ -4,6 +4,7 @@ import utils.tiny_networks as tiny
 import utils.progressive_networks as prog
 import utils.residual_networks as res
 import utils.experimental_networks as exp
+import utils.cycle_gan_networks as cyc
 import utils.networks as nets
 
 parser = argparse.ArgumentParser()
