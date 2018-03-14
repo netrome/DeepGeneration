@@ -84,7 +84,7 @@ STEPS = int(args.steps)
 # Network architectures
 GENERATOR = prog.TrivialGeneratorLight
 
-DISCRIMINATOR = cyc.PatchGANDiscriminator
+DISCRIMINATOR = prog.TrivialDiscriminatorLight
 
 ENCODER = nets.TrivialEncoderLight
 
