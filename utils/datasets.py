@@ -167,6 +167,17 @@ class HelenData(Dataset):
         return tot
 
 
+class DownsamplingDataWrapper(Dataset):
+    def __init__(self, other):
+        self.other = other 
+
+    def __len__(self):
+        return len(self.other)
+
+    def __getitem__(self, item):
+        return F.avg_pool2d(Variable(self.other[item], volatile=True), 1, stride=2).data
+
+
 if __name__ == "__main__":
     data = HelenData()
     import code

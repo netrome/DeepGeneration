@@ -5,13 +5,14 @@ import utils.progressive_networks as prog
 import utils.residual_networks as res
 import utils.experimental_networks as exp
 import utils.cycle_gan_networks as cyc
+import utils.networks128 as n128
 import utils.networks as nets
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cuda", help="enable cuda", action="store_true")
 parser.add_argument("--gp", help="gradient penalty", action="store_true")
 parser.add_argument("--lr", help="learning rate", action="store", default="0.0001")
-parser.add_argument("--bs", help="batch size", action="store", default="8")
+parser.add_argument("--bs", help="batch size", action="store", default="32")
 
 parser.add_argument("--stage", help="training stage", action="store", default="6")
 parser.add_argument("--steps", help="training steps", action="store", default="100")
@@ -82,11 +83,11 @@ CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
 
 # Network architectures
-GENERATOR = prog.SamplingGeneratorLight
+GENERATOR = lambda: n128.Generator
 
-DISCRIMINATOR = prog.SamplingDiscriminatorLight
+DISCRIMINATOR = lambda: n128.Discriminator
 
-ENCODER = nets.SamplingEncoderLight
+ENCODER = lambda: n128.Encoder
 
 REGRESSOR = nets.ImageToImage
 
