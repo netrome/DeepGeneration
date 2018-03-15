@@ -142,11 +142,11 @@ MarchDiscriminator = nn.Sequential(
 MarchGenerator = nn.Sequential(
         nn.ConvTranspose2d(128, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        MarchUpBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
-        MarchUpBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
-        MarchUpBlock(256, 128, nn.LeakyReLU(negative_slope=0.2)),
-        MarchUpBlock(128, 64, nn.LeakyReLU(negative_slope=0.2)),
-        MarchUpBlock(64, 32, nn.LeakyReLU(negative_slope=0.2)),
+        MarchUpBlock(256, 256)
+        MarchUpBlock(256, 256)
+        MarchUpBlock(256, 128)
+        MarchUpBlock(128, 64)
+        MarchUpBlock(64, 32)
         )
 
 # Image to image models --------------------------------------
