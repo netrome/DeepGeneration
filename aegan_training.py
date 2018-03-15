@@ -59,8 +59,8 @@ if settings.WORKING_MODEL:
     D.load_state_dict(torch.load("working_model/D.params"))
     E.load_state_dict(torch.load("working_model/E.params"))
 
-    toRGB.load_state_dict(torch.load("working_model/toRGB6.params"))
-    fromRGB.load_state_dict(torch.load("working_model/fromRGB6.params"))
+    toRGB.load_state_dict(torch.load("working_model/toRGB5.params"))  # Work on stage 5
+    fromRGB.load_state_dict(torch.load("working_model/fromRGB5.params"))  # Work on stage 5
     print("Loaded RGB layers too")
 
 dataset = u.get_data_set()
