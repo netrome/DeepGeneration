@@ -66,7 +66,7 @@ Encoder = nn.Sequential(
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(257, 256, 3, padding=1),
+        nn.Conv2d(256, 256, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(256, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
