@@ -25,8 +25,9 @@ class MarchUpBlock(nn.Module):
         super().__init__()
         modules = [
                 nn.Upsample(scale_factor=2),
-                nn.ReflectionPad2d(1),
-                nn.Conv2d(in_channels, out_channels, 3),
+                nn.Conv2d(in_channels, in_channels, 3, padding=1),
+                nn.LeakyReLU(negative_slope=0.2),
+                nn.Conv2d(in_channels, out_channels, 3, padding=1),
                 nn.LeakyReLU(negative_slope=0.2),
                 ]
         self.module = nn.Sequential(*modules)
