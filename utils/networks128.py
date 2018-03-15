@@ -74,11 +74,11 @@ Encoder = nn.Sequential(
         )
 
 MarchEncoder = nn.Sequential(
-        MarchDownBlock(),
-        MarchDownBlock(),
-        MarchDownBlock(),
-        MarchDownBlock(),
-        MarchDownBlock(),
+        MarchDownBlock(256, 256),
+        MarchDownBlock(256, 256),
+        MarchDownBlock(256, 128),
+        MarchDownBlock(128, 64),
+        MarchDownBlock(64, 32),
         )
 
 # Decoders/generators ----------------------------
