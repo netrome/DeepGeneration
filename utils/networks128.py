@@ -5,7 +5,31 @@ import torch
 from .progressive_networks import TrivialDownBlock, DownsamplingDownBlock, TrivialUpBlock, UpsamplingUpBlock
 from .cycle_gan_networks import MiniBatchSTD
 
-# Encoders ---------------------------------------
+# Blocks and smaller modules --------------------
+class MarchDownBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        modules = [
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, out_channels, 3),
+                nn.LeakyReLU(negative_slope=0.2),
+                nn.Conv2d(out_channels, out_channels, 2, stride=2),
+                nn.LeakyReLU(negative_slope=0.2),
+                ]
+        self.module = nn.Sequential(*modules)
+    def forward(self, batch):
+        return self.module(batch)
+
+class MarchUpBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        modules = [
+                nn.Upsample(scale_factor=2),
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, out_channels, 3),
+                ]
+        self.module = nn.Sequential(*modules)
+    def forward(self, batch):
+        return self.module(batch)
+
 class Encoding_layer(nn.Module):
     def __init__(self, size):
         super().__init__()
@@ -27,6 +51,8 @@ class Flatten(nn.Module):
     def forward(self, batch):
         return batch.view(-1, self.size)
 
+# Encoders ---------------------------------------
+
 Encoder = nn.Sequential(
         TrivialDownBlock(16, 32, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
@@ -38,8 +64,6 @@ Encoder = nn.Sequential(
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(256, 512, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        MiniBatchSTD(),
-        nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(513, 512, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(512, 512, 4),
@@ -47,6 +71,14 @@ Encoder = nn.Sequential(
         Flatten(512),
         Encoding_layer(512)
         # A sigmoid could be nice here
+        )
+
+MarchEncoder = nn.Sequential(
+        MarchDownBlock(),
+        MarchDownBlock(),
+        MarchDownBlock(),
+        MarchDownBlock(),
+        MarchDownBlock(),
         )
 
 # Decoders/generators ----------------------------
@@ -81,7 +113,6 @@ Discriminator = nn.Sequential(
         TrivialDownBlock(512, 512, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         MiniBatchSTD(),
-        nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(513, 512, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(512, 512, 4),
