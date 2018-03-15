@@ -29,6 +29,7 @@ class MarchUpBlock(nn.Module):
                 nn.LeakyReLU(negative_slope=0.2),
                 nn.Conv2d(in_channels, out_channels, 3, padding=1),
                 nn.LeakyReLU(negative_slope=0.2),
+                nn.InstanceNorm2d(out_channels),
                 ]
         self.module = nn.Sequential(*modules)
     def forward(self, batch):
