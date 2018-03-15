@@ -44,7 +44,7 @@ opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=sett
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
-reconstruction_loss = nn.MSELoss()
+reconstruction_loss = nn.L1Loss()
 adversarial_loss = nn.BCEWithLogitsLoss()
 
 visualizer = vis.Visualizer()
