@@ -34,31 +34,32 @@ Encoder = nn.Sequential(
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(128, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialDownBlock(256, 512, nn.LeakyReLU(negative_slope=0.2)),
+        TrivialDownBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialDownBlock(512, 512, nn.LeakyReLU(negative_slope=0.2)),
+        TrivialDownBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         MiniBatchSTD(),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(513, 512, 3, padding=1),
+        nn.Conv2d(257, 256, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(512, 512, 4),
+        nn.Conv2d(256, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        Flatten(512),
-        Encoding_layer(512)
+        Flatten(256),
+        Encoding_layer(256)
         # A sigmoid could be nice here
         )
 
 # Decoders/generators ----------------------------
 
 Generator = nn.Sequential(
-        nn.ConvTranspose2d(128, 512, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(512, 512, 3, padding=1),
+        nn.ConvTranspose2d(128, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialUpBlock(512, 512, nn.LeakyReLU(negative_slope=0.2)),
+        nn.Conv2d(256, 256, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialUpBlock(512, 256, nn.LeakyReLU(negative_slope=0.2)),
+        TrivialUpBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
+        nn.LeakyReLU(negative_slope=0.2),
+        TrivialUpBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         TrivialUpBlock(256, 128, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
@@ -76,18 +77,18 @@ Discriminator = nn.Sequential(
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(128, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialDownBlock(256, 512, nn.LeakyReLU(negative_slope=0.2)),
+        TrivialDownBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
-        TrivialDownBlock(512, 512, nn.LeakyReLU(negative_slope=0.2)),
+        TrivialDownBlock(256, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         MiniBatchSTD(),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(513, 512, 3, padding=1),
+        nn.Conv2d(257, 256, 3, padding=1),
         nn.LeakyReLU(negative_slope=0.2),
-        nn.Conv2d(512, 512, 4),
+        nn.Conv2d(256, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        Flatten(512),
-        nn.Linear(512, 1),
+        Flatten(256),
+        nn.Linear(256, 1),
         )
 
 # Image to image models --------------------------------------
