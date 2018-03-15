@@ -28,8 +28,6 @@ class Flatten(nn.Module):
         return batch.view(-1, self.size)
 
 Encoder = nn.Sequential(
-        TrivialDownBlock(16, 32, nn.LeakyReLU(negative_slope=0.2)),
-        nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(32, 64, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(64, 128, nn.LeakyReLU(negative_slope=0.2)),
@@ -37,6 +35,8 @@ Encoder = nn.Sequential(
         TrivialDownBlock(128, 256, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         TrivialDownBlock(256, 512, nn.LeakyReLU(negative_slope=0.2)),
+        nn.LeakyReLU(negative_slope=0.2),
+        TrivialDownBlock(512, 512, nn.LeakyReLU(negative_slope=0.2)),
         nn.LeakyReLU(negative_slope=0.2),
         MiniBatchSTD(),
         nn.LeakyReLU(negative_slope=0.2),
