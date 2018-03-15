@@ -180,5 +180,63 @@ MarchGenerator = nn.Sequential(
         MarchUpBlock(64, 32, upsample=False)
         )
 
+# March 2 networks ----------------------------------------------------
+def March2ConvBlock(in_channels, out_channels, kernel_size, stride=1, padding=0, normalize=False):
+    return nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size, stride=stride, padding=padding),
+            nn.LeakyReLU(negative_slope=0.2),
+            Normalize(normalize)
+            )
+
+def March2ConvTransposeBlock(in_channels, out_channels, kernel_size, stride=1, padding=0):
+    return nn.Sequential(
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride=stride),
+            nn.LeakyReLU(negative_slope=0.2),
+            Normalize()
+            )
+
+MarchGenerator2 = nn.Sequential(
+        March2ConvTransposeBlock(128, 512, 4),
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvTransposeBlock(512, 256, 2, stride=2),
+        March2ConvTransposeBlock(256, 256, 2, stride=2),
+        March2ConvTransposeBlock(256, 128, 2, stride=2),
+        March2ConvTransposeBlock(128, 64, 2, stride=2),
+        March2ConvTransposeBlock(64, 32, 2, stride=2),
+        )
+
+MarchDiscriminator2 = nn.Sequential(
+        March2ConvBlock(32, 64, 2, stride=2),
+        March2ConvBlock(64, 128, 2, stride=2),
+        March2ConvBlock(128, 256, 2, stride=2),
+        March2ConvBlock(256, 256, 2, stride=2),
+        March2ConvBlock(256, 512, 2, stride=2),
+
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvBlock(512, 512, 4),
+        March2ConvBlock(512, 512, 1),
+        MiniBatchSTD(),
+        Flatten(513),
+        nn.Linear(513, 1),
+        )
+
+MarchEncoder2 = nn.Sequential(
+        March2ConvBlock(32, 64, 2, stride=2),
+        March2ConvBlock(64, 128, 2, stride=2),
+        March2ConvBlock(128, 256, 2, stride=2),
+        March2ConvBlock(256, 256, 2, stride=2),
+        March2ConvBlock(256, 512, 2, stride=2),
+
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvBlock(512, 512, 4),
+        March2ConvBlock(512, 512, 1),
+        Flatten(512),
+        Encoding_layer(512),
+        )
+
+
 # Image to image models --------------------------------------
 
