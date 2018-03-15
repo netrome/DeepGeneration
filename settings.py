@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--cuda", help="enable cuda", action="store_true")
 parser.add_argument("--gp", help="gradient penalty", action="store_true")
 parser.add_argument("--lr", help="learning rate", action="store", default="0.0001")
-parser.add_argument("--bs", help="batch size", action="store", default="32")
+parser.add_argument("--bs", help="batch size", action="store", default="8")
 
 parser.add_argument("--stage", help="training stage", action="store", default="6")
 parser.add_argument("--steps", help="training steps", action="store", default="100")

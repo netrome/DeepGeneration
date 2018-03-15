@@ -13,7 +13,8 @@ class MarchDownBlock(nn.Module):
                 nn.ReflectionPad2d(1),
                 nn.Conv2d(in_channels, out_channels, 3),
                 nn.LeakyReLU(negative_slope=0.2),
-                nn.Conv2d(out_channels, out_channels, 2, stride=2),
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(out_channels, out_channels, 4, stride=2),
                 nn.LeakyReLU(negative_slope=0.2),
                 ]
         self.module = nn.Sequential(*modules)
@@ -21,15 +22,19 @@ class MarchDownBlock(nn.Module):
         return self.module(batch)
 
 class MarchUpBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, upsample=True, normalize=False):
         super().__init__()
+        up = nn.Upsample(scale_factor=2) if upsample else nn.ConvTranspose2d(in_channels, in_channels, 2, stride=2)
         modules = [
-                nn.Upsample(scale_factor=2),
-                nn.Conv2d(in_channels, in_channels, 3, padding=1),
+                up,
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, in_channels, 3),
                 nn.LeakyReLU(negative_slope=0.2),
-                nn.Conv2d(in_channels, out_channels, 3, padding=1),
+                Normalize(normalize),
+                nn.ReflectionPad2d(1),
+                nn.Conv2d(in_channels, out_channels, 3),
                 nn.LeakyReLU(negative_slope=0.2),
-                nn.InstanceNorm2d(out_channels),
+                Normalize(normalize),
                 ]
         self.module = nn.Sequential(*modules)
     def forward(self, batch):
@@ -55,6 +60,16 @@ class Flatten(nn.Module):
         self.size = size
     def forward(self, batch):
         return batch.view(-1, self.size)
+
+class Normalize(nn.Module):
+    def __init__(self, normalize=True):
+        super().__init__()
+        self.do_it = normalize
+    def forward(self, batch):
+        if self.do_it:
+            return F.normalize(batch)
+        else:
+            return batch
 
 # Encoders ---------------------------------------
 
@@ -151,11 +166,18 @@ MarchDiscriminator = nn.Sequential(
 MarchGenerator = nn.Sequential(
         nn.ConvTranspose2d(128, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
-        MarchUpBlock(256, 256),
-        MarchUpBlock(256, 256),
-        MarchUpBlock(256, 128),
-        MarchUpBlock(128, 64),
-        MarchUpBlock(64, 32)
+        Normalize(),
+        nn.Conv2d(256, 256, 3, padding=1),
+        nn.LeakyReLU(negative_slope=0.2),
+        Normalize(),
+        nn.Conv2d(256, 256, 3, padding=1),
+        nn.LeakyReLU(negative_slope=0.2),
+        Normalize(),
+        MarchUpBlock(256, 256, normalize=True),
+        MarchUpBlock(256, 256, normalize=True),
+        MarchUpBlock(256, 128, normalize=True),
+        MarchUpBlock(128, 64, normalize=True, upsample=False),
+        MarchUpBlock(64, 32, upsample=False)
         )
 
 # Image to image models --------------------------------------
