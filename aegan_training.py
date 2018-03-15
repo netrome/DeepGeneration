@@ -18,8 +18,8 @@ from utils.utils import cyclic_data_iterator
 G = u.create_generator()
 E = u.create_encoder()
 D = u.create_discriminator()
-toRGB = nn.Conv2d(16, 2, 1)
-fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
+toRGB = nn.Conv2d(32, 2, 1)
+fromRGB = nn.Conv2d(2, 32, 1)  # Shared between discriminator and encoder
 latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
 latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
 positive_targets = Variable(torch.ones(settings.BATCH_SIZE, 1))
