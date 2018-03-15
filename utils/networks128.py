@@ -8,6 +8,7 @@ from .cycle_gan_networks import MiniBatchSTD
 # Blocks and smaller modules --------------------
 class MarchDownBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
+        super().__init__()
         modules = [
                 nn.ReflectionPad2d(1),
                 nn.Conv2d(in_channels, out_channels, 3),
@@ -21,6 +22,7 @@ class MarchDownBlock(nn.Module):
 
 class MarchUpBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
+        super().__init__()
         modules = [
                 nn.Upsample(scale_factor=2),
                 nn.ReflectionPad2d(1),
