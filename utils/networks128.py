@@ -75,18 +75,9 @@ Encoder = nn.Sequential(
         # A sigmoid could be nice here
         )
 
-MarchEncoder = nn.Sequential(
-        MarchDownBlock(256, 256),
-        MarchDownBlock(256, 256),
-        MarchDownBlock(256, 128),
-        MarchDownBlock(128, 64),
-        MarchDownBlock(64, 32),
-        )
-
 # Decoders/generators ----------------------------
 
 Generator = nn.Sequential(
-        nn.LeakyReLU(negative_slope=0.2),
         nn.ConvTranspose2d(128, 256, 4),
         nn.LeakyReLU(negative_slope=0.2),
         nn.Conv2d(256, 256, 3, padding=1),
@@ -123,6 +114,34 @@ Discriminator = nn.Sequential(
         Flatten(256),
         nn.Linear(256, 1),
         )
+
+# March networks
+MarchEncoder = nn.Sequential(
+        MarchDownBlock(32, 64),
+        MarchDownBlock(64, 128),
+        MarchDownBlock(128, 256),
+        MarchDownBlock(256, 256),
+        MarchDownBlock(256, 256),
+        nn.Conv2d(256, 256, 4),
+        Flatten(256),
+        Encoding_layer(256),
+        )
+
+MarchDiscriminator = nn.Sequential(
+        MarchDownBlock(32, 64),
+        MarchDownBlock(64, 128),
+        MarchDownBlock(128, 256),
+        MarchDownBlock(256, 256),
+        MarchDownBlock(256, 256),
+        nn.Conv2d(256, 256, 4),
+        MiniBatchSTD(),
+        Flatten(257),
+        nn.Linear(257, 1),
+        )
+
+#MarchGenerator = nn.Sequential(
+#
+#        )
 
 # Image to image models --------------------------------------
 
