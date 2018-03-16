@@ -83,11 +83,11 @@ CHUNKS = int(args.chunks)
 STEPS = int(args.steps)
 
 # Network architectures
-GENERATOR = lambda: n128.MarchGenerator2
+GENERATOR = prog.TrivialGeneratorLight
 
-DISCRIMINATOR = lambda: n128.MarchDiscriminator2
+DISCRIMINATOR = prog.TrivialDiscriminatorLight
 
-ENCODER = lambda: n128.MarchEncoder2
+ENCODER = nets.TrivialEncoderLight
 
 REGRESSOR = nets.ImageToImage
 

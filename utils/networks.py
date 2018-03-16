@@ -25,7 +25,7 @@ class TrivialEncoderLight(nn.Module):
 
         self.blocks = [self.down1, self.down2, self.down3, self.down4, self.down5, self.down6]
 
-    def forward(self, img, levels=6):
+    def forward(self, img, levels=5):
         start = 6 - levels
         for i in range(levels):
             img = self.activation(self.blocks[start + i](img))

@@ -156,7 +156,7 @@ class TrivialGeneratorLight(nn.Module):
 
         self.blocks = [self.up1, self.up2, self.up3, self.up4, self.up5, self.up6]
 
-    def forward(self, z, levels=6):
+    def forward(self, z, levels=5):
         img = F.normalize(self.activation(self.inflate(z)))
         img = F.normalize(self.activation(self.low_conv(img)))
 
@@ -210,7 +210,7 @@ class TrivialDiscriminatorLight(nn.Module):
 
         self.blocks = [self.down1, self.down2, self.down3, self.down4, self.down5, self.down6]
 
-    def forward(self, img, levels=6):
+    def forward(self, img, levels=5):
         start = 6 - levels
         for i in range(levels):
             img = self.activation(self.blocks[start + i](img))

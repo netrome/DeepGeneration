@@ -197,25 +197,25 @@ def March2ConvTransposeBlock(in_channels, out_channels, kernel_size, stride=1, p
 
 MarchGenerator2 = nn.Sequential(
         March2ConvTransposeBlock(128, 512, 4),
-        March2ConvBlock(512, 512, 3, padding=1),
-        March2ConvBlock(512, 512, 3, padding=1),
-        March2ConvTransposeBlock(512, 256, 2, stride=2),
-        March2ConvBlock(256, 256, 3, padding=1),
+        #March2ConvBlock(512, 512, 3, padding=1),
+        #March2ConvBlock(512, 512, 3, padding=1),
+        March2ConvTransposeBlock(512, 512, 2, stride=2),
+        March2ConvBlock(512, 256, 3, padding=1),
         March2ConvTransposeBlock(256, 256, 2, stride=2),
-        March2ConvBlock(256, 256, 3, padding=1),
-        March2ConvTransposeBlock(256, 128, 2, stride=2),
-        March2ConvBlock(128, 128, 3, padding=1),
-        March2ConvTransposeBlock(128, 64, 2, stride=2),
-        March2ConvBlock(64, 64, 3, padding=1),
-        March2ConvTransposeBlock(64, 32, 2, stride=2),
-        March2ConvBlock(32, 32, 3, padding=1),
+        March2ConvBlock(256, 128, 3, padding=1),
+        March2ConvTransposeBlock(128, 128, 2, stride=2),
+        March2ConvBlock(128, 64, 3, padding=1),
+        March2ConvTransposeBlock(64, 64, 2, stride=2),
+        March2ConvBlock(64, 32, 3, padding=1),
+        March2ConvTransposeBlock(32, 32, 2, stride=2),
+        March2ConvBlock(32, 16, 3, padding=1),
         )
 
 MarchDiscriminator2 = nn.Sequential(
+        March2ConvBlock(16, 32, 2, stride=2),
         March2ConvBlock(32, 64, 2, stride=2),
         March2ConvBlock(64, 128, 2, stride=2),
         March2ConvBlock(128, 256, 2, stride=2),
-        March2ConvBlock(256, 256, 2, stride=2),
         March2ConvBlock(256, 512, 2, stride=2),
 
         March2ConvBlock(512, 512, 3, padding=1),
@@ -228,10 +228,10 @@ MarchDiscriminator2 = nn.Sequential(
         )
 
 MarchEncoder2 = nn.Sequential(
+        March2ConvBlock(16, 32, 2, stride=2),
         March2ConvBlock(32, 64, 2, stride=2),
         March2ConvBlock(64, 128, 2, stride=2),
         March2ConvBlock(128, 256, 2, stride=2),
-        March2ConvBlock(256, 256, 2, stride=2),
         March2ConvBlock(256, 512, 2, stride=2),
 
         March2ConvBlock(512, 512, 3, padding=1),
