@@ -45,7 +45,7 @@ opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, be
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()
-adversarial_loss = nn.BCEWithLogitsLoss()
+adversarial_loss = nn.BCEWithLogitsLoss()  # TODO - change back to LSGAN for stability
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
