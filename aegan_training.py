@@ -44,8 +44,8 @@ opt_E = torch.optim.Adamax(E.parameters(), lr=settings.LEARNING_RATE, betas=sett
 opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
-reconstruction_loss = nn.MSELoss()
-adversarial_loss = nn.BCEWithLogitsLoss()
+reconstruction_loss = nn.L1Loss()
+adversarial_loss = nn.MSELoss()
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
@@ -148,7 +148,7 @@ for chunk in range(settings.CHUNKS):
             pred_real = D(fromRGB(batch))
             pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
             pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
-            loss = adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets) #torch.mean((pred_real - 1)**2 + pred_fake**2)
+            loss = torch.mean(adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets)) #torch.mean((pred_real - 1)**2 + pred_fake**2)
 
             # Perform an optimization step
             opt_fromRGB.zero_grad()
