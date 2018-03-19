@@ -20,8 +20,8 @@ E = u.create_encoder()
 D = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
-latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
-latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
+latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1), volatile=True)
+latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1), volatile=True)
 positive_targets = Variable(torch.ones(settings.BATCH_SIZE, 1))
 negative_targets = Variable(torch.zeros(settings.BATCH_SIZE, 1))
 
@@ -45,7 +45,7 @@ opt_toRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, be
 opt_fromRGB = torch.optim.Adamax(toRGB.parameters(), lr=settings.LEARNING_RATE, betas=settings.BETAS)
 
 reconstruction_loss = nn.L1Loss()
-adversarial_loss = nn.MSELoss()
+#adversarial_loss = nn.MSELoss()
 
 visualizer = vis.Visualizer()
 state = json.load(open("working_model/state.json", "r"))
@@ -130,7 +130,8 @@ for chunk in range(settings.CHUNKS):
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
             #gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch) # Scale maps to increase error slope
-            adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
+            #adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
+            adv_loss = -pred_fake
             loss = rec_loss + drift_loss + adv_loss #+ gen_drift_loss
 
             # Perform an optimization step
@@ -148,7 +149,22 @@ for chunk in range(settings.CHUNKS):
             pred_real = D(fromRGB(batch))
             pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
             pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
-            loss = torch.mean(adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets)) #torch.mean((pred_real - 1)**2 + pred_fake**2)
+            loss = pred_fake - pred_real  # Wasserstein loss
+            #loss = torch.mean(adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets)) #torch.mean((pred_real - 1)**2 + pred_fake**2)
+
+            # Add gradient penalty
+            grads = torch.autograd.grad(torch.mean(pred_fake), self.D.parameters(),
+                                        create_graph=True, allow_unused=True)
+            grad_norm = 0
+            for grad in grads:
+                if grad is not None:
+                    grad_norm += grad.pow(2).sum()
+            grad_norm.sqrt_()
+
+            grad_loss = (grad_norm - 1).pow(2)
+            #grad_loss = (grad_norm - 750).pow(2) / 562500
+            loss_D += 10 * grad_loss
+            loss_D += 0.0001 * pred_real.pow(2)  # Drift loss
 
             # Perform an optimization step
             opt_fromRGB.zero_grad()
