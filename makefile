@@ -148,6 +148,31 @@ overnight_aegan:
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 209 --steps 100 --wip
 
+overnight_gan:
+	python initialize_working_model.py
+	python -u gan_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 200 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 201 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 201 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 202 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 202 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 203 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 203 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 204 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 204 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 205 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 205 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 206 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 206 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 207 --steps 100 --wip  
+	python -u gan_training.py --cuda --chunks 207 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 208 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 208 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 209 --steps 100 --wip
+	python -u gan_training.py --cuda --chunks 209 --steps 100 --wip
+
 aegan_cont:
 	python -u aegan_training.py --cuda --chunks 200 --steps 100 --wip
 	python -u aegan_training.py --cuda --chunks 201 --steps 100 --wip
@@ -160,6 +185,13 @@ aegan_debug:
 	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
 	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
 	python -u aegan_training.py --cuda --chunks 100 --steps 20 --wip 
+
+gan_debug:
+	python initialize_working_model.py
+	python -u gan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u gan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u gan_training.py --cuda --chunks 100 --steps 20 --wip 
+	python -u gan_training.py --cuda --chunks 100 --steps 20 --wip 
 
 aegan_helen_debug:
 	python initialize_working_model.py
