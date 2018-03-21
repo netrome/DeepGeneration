@@ -81,7 +81,6 @@ def update_visualization(visualizer, batch, fake, pred_fake, pred_real):
         batch[:, 0].data.cpu().contiguous().view(batch_shape), "real_batch")
 
     fake.data.clamp_(0, 1)
-    decoded.data.clamp_(0, 1)
     visualizer.update_image(fake[0][0].data.cpu(), "fake_img")
     visualizer.update_image(fake[0][1].data.cpu(), "fake_map")
     visualizer.update_image(fake[0].mean(0).data.cpu(), "fake_cat")
@@ -161,7 +160,7 @@ for chunk in range(settings.CHUNKS):
 
     state["history_real"].append(float(pred_real_history))
     state["history_fake"].append(float(pred_fake_history))
-    update_visualization(visualizer, batch, fake, decoded, pred_fake_history, pred_real_history)
+    update_visualization(visualizer, batch, fake, pred_fake_history, pred_real_history)
     save_fake_reference_batch(visualizer.point)
 
 # Save models
