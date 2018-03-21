@@ -164,7 +164,7 @@ for chunk in range(settings.CHUNKS):
             grad_loss = (grad_norm - 1).pow(2)
             #grad_loss = (grad_norm - 750).pow(2) / 562500
             loss += 10 * grad_loss
-            loss += 0.0001 * torch.mean(pred_real).pow(2)  # Drift loss
+            #loss += 0.0001 * torch.mean(pred_real).pow(2)  # Drift loss
 
             # Perform an optimization step
             opt_fromRGB.zero_grad()
