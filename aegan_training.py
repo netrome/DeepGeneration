@@ -149,7 +149,7 @@ for chunk in range(settings.CHUNKS):
             pred_real = D(fromRGB(batch))
             pred_real_history = pred_real_history * 0.9 + torch.mean(pred_real) * 0.1
             pred_fake_history = pred_fake_history * 0.9 + torch.mean(pred_fake) * 0.1
-            loss = torch.mean((pred_fake + 1) ** 2 - (pred_real - 1) ** 2)  # LSGAN loss
+            loss = torch.mean((pred_fake + 1) ** 2 + (pred_real - 1) ** 2)  # LSGAN loss
             #loss = torch.mean(adversarial_loss(pred_fake, negative_targets) + adversarial_loss(pred_real, positive_targets)) #torch.mean((pred_real - 1)**2 + pred_fake**2)
 
             # Add gradient penalty
