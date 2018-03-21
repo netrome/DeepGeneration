@@ -131,7 +131,7 @@ for chunk in range(settings.CHUNKS):
             #gen_drift_loss = torch.mean(fake.pow(2)) * 1e-3
             rec_loss = reconstruction_loss(decoded, batch) # Scale maps to increase error slope
             #adv_loss = adversarial_loss(pred_fake, positive_targets) #torch.mean((pred_fake - 1).pow(2))
-            adv_loss = - torch.mean((pred_fake - 1) ** 2)  # LSGAN loss
+            adv_loss = torch.mean((pred_fake - 1) ** 2)  # LSGAN loss
             loss = rec_loss + drift_loss + adv_loss #+ gen_drift_loss
 
             # Perform an optimization step
