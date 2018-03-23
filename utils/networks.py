@@ -13,8 +13,8 @@ class TrivialEncoderLight(nn.Module):
 
         self.low_conv = nn.Conv2d(128, 128, 3, padding=1)
         self.deflate = nn.Conv2d(128, 128, 4)
-        self.to_mean = nn.Linear(128, 128)
-        self.to_log_var = nn.Linear(128, 128)
+        self.to_mean = nn.Linear(128, 42)
+        self.to_log_var = nn.Linear(128, 42)
 
         self.down1 = TrivialDownBlock(16, 32, self.activation)  # 256x256 -> 128x128
         self.down2 = TrivialDownBlock(32, 64, self.activation)  # 128x128 -> 64x64

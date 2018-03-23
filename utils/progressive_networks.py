@@ -144,7 +144,7 @@ class TrivialGeneratorLight(nn.Module):
         super().__init__()
         self.activation = nn.LeakyReLU(negative_slope=0.2)
 
-        self.inflate = nn.ConvTranspose2d(128, 128, 4)  # Latent -> 4x4
+        self.inflate = nn.ConvTranspose2d(42, 128, 4)  # Latent -> 4x4
         self.low_conv = nn.Conv2d(128, 128, 3, padding=1)  # Preserve shape
 
         self.up1 = TrivialUpBlock(128, 112, self.activation)  # 4x4 -> 8x8

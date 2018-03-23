@@ -20,8 +20,8 @@ E = u.create_encoder()
 D = u.create_discriminator()
 toRGB = nn.Conv2d(16, 2, 1)
 fromRGB = nn.Conv2d(2, 16, 1)  # Shared between discriminator and encoder
-latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 128, 1, 1))
-latent_ref_point = Variable(torch.FloatTensor(16, 128, 1, 1))
+latent = Variable(torch.FloatTensor(settings.BATCH_SIZE, 42, 1, 1))
+latent_ref_point = Variable(torch.FloatTensor(16, 42, 1, 1))
 positive_targets = Variable(torch.ones(settings.BATCH_SIZE, 1))
 negative_targets = Variable(torch.zeros(settings.BATCH_SIZE, 1))
 
@@ -125,7 +125,7 @@ for chunk in range(settings.CHUNKS):
         if update_state == settings.DISCRIMINATOR_ITERATIONS:
             update_state = 0
             encoded = E(fromRGB(batch))[0]  # Only use mean for AEGAN
-            decoded = toRGB(G(encoded.view(-1, 128, 1, 1)))
+            decoded = toRGB(G(encoded.view(-1, 42, 1, 1)))
 
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))  # Penalize values outside bounding box
             rec_loss = reconstruction_loss(decoded, batch) # Scale maps to increase error slope
