@@ -36,7 +36,7 @@ parser.add_argument("--concat", help="concatenate real and fake data", action="s
 args = parser.parse_args()
 
 
-DATA_PATH = "~/Data/DeepGeneration1"
+DATA_PATH = "~/Data/DeepGeneration1" if not args.test else "~/Data/DeepGeneration1test"
 
 REAL_DATA = args.real_data
 
