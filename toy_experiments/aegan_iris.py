@@ -14,7 +14,7 @@ encoder = networks.encoder
 
 decoder = networks.decoder
 
-discriminator = networks.classifier
+discriminator = networks.discriminator
 
 latent = Variable(torch.FloatTensor(75, networks.latent_size).normal_())
 

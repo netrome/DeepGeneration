@@ -16,7 +16,7 @@ decoder = nn.Sequential(
         nn.Linear(hidden_size, 3)
         )
 
-classifier = nn.Sequential(
+discriminator = nn.Sequential(
         nn.Linear(3, hidden_size),
         nn.ReLU(),
         nn.Linear(hidden_size, hidden_size),
@@ -24,3 +24,10 @@ classifier = nn.Sequential(
         nn.Linear(hidden_size, 1)
         )
 
+classifier = nn.Sequential(
+        nn.Linear(2, hidden_size),
+        nn.ReLU(),
+        nn.Linear(hidden_size, hidden_size),
+        nn.ReLU(),
+        nn.Linear(hidden_size, 1)
+        )
