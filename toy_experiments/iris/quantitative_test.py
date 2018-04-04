@@ -33,6 +33,9 @@ if "augment" in sys.argv:
 elif "original" in sys.argv:
     patterns = complete_batch[:, :2]
     targets = complete_batch[:, 2].contiguous().view(75, 1)
+elif "gen" in sys.argv:
+    patterns = generated[:, :2]
+    targets = generated[:, 2].contiguous().view(200, 1)
 
 patterns = patterns.detach()
 targets = targets.detach()
