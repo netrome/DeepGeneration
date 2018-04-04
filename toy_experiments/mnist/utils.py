@@ -1,0 +1,96 @@
+import torch
+import torch.nn as nn
+import torchvision.datasets as data
+import torch.utils.data.dataloader as loader
+import torchvision.transforms as trans
+
+train_data = data.MNIST("~/Data/mnist/", train=True, transform=trans.ToTensor())
+test_data = data.MNIST("~/Data/mnist/", train=False, transform=trans.ToTensor())
+
+def get_data_loader(train=True):
+    data = train_data if train else test_data
+    return loader.DataLoader(data, shuffle=train, pin_memory=True, batch_size=64, drop_last=True)
+
+def get_mean_images():
+    means = torch.zeros(10, 1, 28, 28)
+    counts = torch.zeros(10)
+    for i, (img, label) in enumerate(train_data):
+        means[int(label)] += img
+        counts[int(label)] += 1
+    means /= counts.view(10, 1, 1, 1)
+    return torch.round(means * 1.4)
+
+class Reshape(nn.Module):
+    def __init__(self, *args):
+        super().__init__()
+        self.size = args
+    def forward(self, batch):
+        return batch.view(*self.size)
+
+discriminator = nn.Sequential(
+        nn.Conv2d(1, 16, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(16, 32, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        Reshape(-1, 288),
+        nn.Linear(288, 1),
+        )
+
+transformer = nn.Sequential(
+        nn.Conv2d(1, 16, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(16, 32, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(16, 1, 4, stride=2, padding=1),
+        )
+
+encoder = nn.Sequential(
+        nn.Conv2d(2, 16, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(16, 32, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        Reshape(-1, 288),
+        nn.Linear(288, 40),
+        )
+
+decoder = nn.Sequential(
+        nn.Linear(20, 800),
+        nn.LeakyReLU(0.2),
+        Reshape(-1, 32, 5, 5),
+        nn.ConvTranspose2d(32, 32, 3),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(16, 2, 4, stride=2, padding=1),
+        )
+
+
+if __name__=="__main__":
+    data_loader = get_data_loader(False)
+    tot = 0
+    for i in data_loader:
+        img = i[0]
+        pix = torch.sum(img[:, 0, 4, 4])
+        tot += pix
+    print(tot)
+    # Insight, top left pixel always zero
+
+    mean_images = get_mean_images()
+
+    from visdom import Visdom
+    vis = Visdom()
+    vis.images(mean_images)
