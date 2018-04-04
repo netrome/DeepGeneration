@@ -5,18 +5,11 @@ from torch.autograd import Variable
 import torch.nn as nn
 
 import iris
+import networks
 
-encoder = nn.Sequential(
-        nn.Linear(3, 10),
-        nn.ReLU(),
-        nn.Linear(10, 2)
-        )
+encoder = networks.encoder 
 
-decoder = nn.Sequential(
-        nn.Linear(1, 10),
-        nn.ReLU(),
-        nn.Linear(10, 3)
-        )
+decoder = networks.decoder
 
 # Minor data processing, concatenate the data sets
 X, Y = iris.get_train_data()
