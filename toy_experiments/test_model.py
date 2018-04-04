@@ -6,13 +6,15 @@ import matplotlib.pyplot as plt
 import networks
 import iris
 
+import sys
+
 encoder = networks.encoder
 decoder = networks.decoder
-latent = Variable(torch.FloatTensor(200, 1).random_(), volatile=True)  # Latent codes to generate new data
+latent = Variable(torch.FloatTensor(200, networks.latent_size).normal_(), volatile=True)  # Latent codes to generate new data
 
 # Load networks
-encoder.load_state_dict(torch.load("saved_nets/vae_encoder.params"))
-decoder.load_state_dict(torch.load("saved_nets/vae_decoder.params"))
+encoder.load_state_dict(torch.load("saved_nets/{}_encoder.params".format(sys.argv[1])))
+decoder.load_state_dict(torch.load("saved_nets/{}_decoder.params".format(sys.argv[1])))
 
 # Get original data
 X, Y = iris.get_train_data()
@@ -20,7 +22,7 @@ data = np.concatenate([X, Y.reshape([75, 1])], axis=1)
 complete_batch = Variable(torch.from_numpy(data).float(), volatile=True)
 
 # Encode-decode data
-encoded = encoder(complete_batch)[:, 0].contiguous().view(75, 1)
+encoded = encoder(complete_batch)[:, :networks.latent_size].contiguous().view(75, networks.latent_size)
 decoded = decoder(encoded)
 
 # Generate new data
@@ -34,5 +36,7 @@ generated = generated.data.numpy()
 plt.scatter(X[:, 0], X[:, 1], c=Y)
 plt.figure()
 plt.scatter(decoded[:, 0], decoded[:, 1], c=decoded[:, 2])
+plt.figure()
+plt.scatter(generated[:, 0], generated[:, 1], c=generated[:, 2])
 plt.show()
 

@@ -22,26 +22,30 @@ opt = torch.optim.Adam([
     ])
 
 
-for i in range(10000):
+iters = 20000
+for i in range(iters):
     out = encoder(complete_batch)
-    mu, log_var = out[:, 0], out[:, 1]
+    mu, log_var = out[:, :networks.latent_size], out[:, networks.latent_size:]
 
     # Compute loss
     std = log_var.mul(0.5).exp_()
     eps = Variable(std.data.new(std.size()).normal_())
-    sampled = eps.mul(std).add_(mu).view(75, 1)
+    sampled = eps.mul(std).add_(mu).view(75, networks.latent_size)
 
     decoded = decoder(sampled)
 
-    MSE = torch.mean((decoded - complete_batch) ** 2)
-    KLD =  -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp()) / 75
+    L1 = torch.mean(torch.abs(decoded - complete_batch))
+    KLD =  -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp()) / 75 / networks.latent_size
 
-    loss = MSE + KLD
-    print(float(loss))
+    loss = L1 + KLD * 0.1
 
     opt.zero_grad()
     loss.backward()
     opt.step()
+
+    if i%100 == 0:
+        print("{}/{}: loss: {}      ".format(i, iters, float(loss)), end="\r")
+print()
 
 torch.save(encoder.state_dict(), open("saved_nets/vae_encoder.params", "wb"))
 torch.save(decoder.state_dict(), open("saved_nets/vae_decoder.params", "wb"))

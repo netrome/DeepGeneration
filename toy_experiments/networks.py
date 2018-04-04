@@ -1,13 +1,26 @@
 import torch.nn as nn
 
+hidden_size = 100
+
+latent_size = 2
+
 encoder = nn.Sequential(
-        nn.Linear(3, 10),
+        nn.Linear(3, hidden_size),
         nn.ReLU(),
-        nn.Linear(10, 2)
+        nn.Linear(hidden_size, 2*latent_size)
         )
 
 decoder = nn.Sequential(
-        nn.Linear(1, 10),
+        nn.Linear(latent_size, hidden_size),
         nn.ReLU(),
-        nn.Linear(10, 3)
+        nn.Linear(hidden_size, 3)
         )
+
+classifier = nn.Sequential(
+        nn.Linear(3, hidden_size),
+        nn.ReLU(),
+        nn.Linear(hidden_size, hidden_size),
+        nn.ReLU(),
+        nn.Linear(hidden_size, 1)
+        )
+
