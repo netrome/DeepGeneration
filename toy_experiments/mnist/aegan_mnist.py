@@ -21,14 +21,14 @@ if "cuda" in sys.argv:
     D.cuda()
     latent = latent.cuda()
 
-opt = torch.optim.Adam([
+opt = torch.optim.Adamax([
     {'params': E.parameters()},
     {'params': G.parameters()},
         ])
 
-opt_D = torch.optim.Adam([
+opt_D = torch.optim.Adamax([
     {'params': D.parameters()},
-    ])
+    ], lr=0.0001, betas=(0.5, 0.99))
 
 print("Ready to train")
 update_state = 0
