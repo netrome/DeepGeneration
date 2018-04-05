@@ -32,7 +32,8 @@ opt_D = torch.optim.Adamax([
 
 print("Ready to train")
 update_state = 0
-for epoch in range(100):
+epochs = 100
+for epoch in range(epochs):
     for i, (img, label) in enumerate(data_loader):
         latent.data.normal_()
         cat = torch.cat([img, mean_images[label]], dim=1)
@@ -77,7 +78,7 @@ for epoch in range(100):
     vis.images(decoded[:, 1, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="labels")
     vis.images(fake[:, 0, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="fake1", opts={"caption": "fake images"})
     vis.images(fake[:, 1, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="label1", opts={"caption": "fake labels"})
-    print("Epoch {}/10, loss: {}".format(epoch, float(loss)))
+    print("Epoch {}/{}, loss: {}".format(epoch, epochs, float(loss)))
 
 torch.save(E.state_dict(), open("saved_nets/aegan_encoder.params", "wb"))
 torch.save(G.state_dict(), open("saved_nets/aegan_decoder.params", "wb"))
