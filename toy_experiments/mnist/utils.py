@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torchvision.datasets as data
 import torch.utils.data.dataloader as loader
 import torchvision.transforms as trans
@@ -27,8 +28,14 @@ class Reshape(nn.Module):
     def forward(self, batch):
         return batch.view(*self.size)
 
+class ScaledTanh(nn.Module):
+    def __init__(self):
+        super().__init__()
+    def forward(self, batch):
+        return F.tanh(batch) * 10
+
 discriminator = nn.Sequential(
-        nn.Conv2d(1, 16, 4, stride=2, padding=1),
+        nn.Conv2d(2, 16, 4, stride=2, padding=1),
         nn.LeakyReLU(0.2),
         nn.Conv2d(16, 32, 4, stride=2, padding=1),
         nn.LeakyReLU(0.2),
