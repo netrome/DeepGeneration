@@ -28,7 +28,7 @@ opt = torch.optim.Adamax([
 
 opt_D = torch.optim.Adamax([
     {'params': D.parameters()},
-    ], lr=0.0001, betas=(0.5, 0.99))
+    ], lr=0.0002, betas=(0.5, 0.99))
 
 print("Ready to train")
 update_state = 0
@@ -57,7 +57,7 @@ for epoch in range(epochs):
             adv_loss = torch.mean((pred_fake - 1).pow(2))
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))
 
-            loss = L1 #+ adv_loss + drift_loss
+            loss = L1 + adv_loss + drift_loss
 
             opt.zero_grad()
             loss.backward()

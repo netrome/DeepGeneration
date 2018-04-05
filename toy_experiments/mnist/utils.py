@@ -44,52 +44,52 @@ class Swish(nn.Module):
 
 discriminator = nn.Sequential(
         nn.Conv2d(2, 16, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(16, 32, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(32, 64, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(64, 64, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         Reshape(-1, 576),
         nn.Linear(576, 1),
         )
 
 transformer = nn.Sequential(
         nn.Conv2d(1, 16, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(16, 32, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(32, 32, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.ConvTranspose2d(32, 32, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.ConvTranspose2d(16, 1, 4, stride=2, padding=1),
         )
 
 encoder = nn.Sequential(
         nn.Conv2d(2, 16, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(16, 32, 4, stride=2, padding=1),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(32, 32, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         nn.Conv2d(32, 32, 3),
-        Swish(),
+        nn.LeakyReLU(0.2),
         Reshape(-1, 288),
         nn.Linear(288, 40),
         )
 
 decoder = nn.Sequential(
         nn.Linear(20, 1600),
-        nn.SELU(),
+        nn.LeakyReLU(0.2),
         Reshape(-1, 64, 5, 5),
         nn.ConvTranspose2d(64, 32, 3),
-        nn.SELU(),
+        nn.LeakyReLU(0.2),
         nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1),
-        nn.SELU(),
+        nn.LeakyReLU(0.2),
         nn.ConvTranspose2d(16, 2, 4, stride=2, padding=1),
         )
 
