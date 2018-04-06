@@ -8,7 +8,7 @@ import torchvision.transforms as trans
 train_data = data.MNIST("~/Data/mnist/", train=True, transform=trans.ToTensor())
 test_data = data.MNIST("~/Data/mnist/", train=False, transform=trans.ToTensor())
 
-latent_size = 8
+latent_size = 20
 
 def get_data_loader(train=True):
     data = train_data if train else test_data
