@@ -7,8 +7,8 @@ from visdom import Visdom
 import sys
 
 data_loader = u.get_data_loader()
-mean_images = u.get_mean_images()
-latent = Variable(torch.FloatTensor(64, 20))
+#mean_images = u.get_mean_images()
+latent = Variable(torch.FloatTensor(64, u.latent_size))
 E = u.encoder 
 G = u.decoder 
 D = u.discriminator
@@ -24,36 +24,44 @@ if "cuda" in sys.argv:
 opt = torch.optim.Adamax([
     {'params': E.parameters()},
     {'params': G.parameters()},
-        ])
+    ], lr=0.0002, betas=(0.5, 0.99))
 
 opt_D = torch.optim.Adamax([
     {'params': D.parameters()},
     ], lr=0.0002, betas=(0.5, 0.99))
 
 print("Ready to train")
+ref = torch.arange(0, 64).long()
 update_state = 0
 epochs = 100
 for epoch in range(epochs):
     for i, (img, label) in enumerate(data_loader):
+        img[:, 0, 0, :][ref, label*2] = 1
+        img[:, 0, 0, :][ref, label*2+1] = 1
+        img[:, 0, 1, :][ref, label*2] = 1
+        img[:, 0, 1, :][ref, label*2+1] = 1
+        img[:, 0, 2, :][ref, label*2] = 1
+        img[:, 0, 2, :][ref, label*2+1] = 1
+        cat = Variable(img)
+        #cat = torch.cat([img, mean_images[label]], dim=1)
+        #cat = Variable(cat)
         latent.data.normal_()
-        cat = torch.cat([img, mean_images[label]], dim=1)
-        cat = Variable(cat)
 
         if "cuda" in sys.argv:
             cat = cat.cuda()
 
         out = E(cat)
-        encoded = out[:, :20]
+        encoded = out[:, :u.latent_size]
         decoded = G(encoded)
         fake = G(latent)
         
         pred_real = D(cat)
         pred_fake = D(fake)
 
-        if update_state == 1:
+        if update_state == 3:  # Discriminator iterations
             update_state = 0
 
-            L1 = torch.mean(torch.abs(decoded - cat))
+            L1 = torch.mean(torch.abs(decoded - cat)) 
             adv_loss = torch.mean((pred_fake - 1).pow(2))
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))
 
@@ -75,9 +83,7 @@ for epoch in range(epochs):
 
     vis.images(cat[:, 0, :, :].data.cpu().view(64, 1, 28, 28), win="original")
     vis.images(decoded[:, 0, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="fake")
-    vis.images(decoded[:, 1, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="labels")
     vis.images(fake[:, 0, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="fake1", opts={"caption": "fake images"})
-    vis.images(fake[:, 1, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="label1", opts={"caption": "fake labels"})
     print("Epoch {}/{}, loss: {}".format(epoch, epochs, float(loss)))
 
 torch.save(E.state_dict(), open("saved_nets/aegan_encoder.params", "wb"))

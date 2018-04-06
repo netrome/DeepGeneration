@@ -8,11 +8,14 @@ import torchvision.transforms as trans
 train_data = data.MNIST("~/Data/mnist/", train=True, transform=trans.ToTensor())
 test_data = data.MNIST("~/Data/mnist/", train=False, transform=trans.ToTensor())
 
+latent_size = 8
+
 def get_data_loader(train=True):
     data = train_data if train else test_data
     return loader.DataLoader(data, shuffle=train, pin_memory=True, batch_size=64, drop_last=True)
 
 def get_mean_images():
+    raise DeprecationWarning("No more mean images")
     means = torch.zeros(10, 1, 28, 28)
     counts = torch.zeros(10)
     for i, (img, label) in enumerate(train_data):
@@ -34,6 +37,16 @@ class ScaledTanh(nn.Module):
     def forward(self, batch):
         return F.tanh(batch) * 10
 
+class MiniBatchSTD(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, img):
+        shape = list(img.shape)
+        shape[1] = 1
+        minibatch_std = img.std(0).mean().expand(shape) + 1e-6
+        out = torch.cat([img, minibatch_std], dim=1)
+        return out
 
 class Swish(nn.Module):
     def __init__(self):
@@ -43,16 +56,16 @@ class Swish(nn.Module):
         return batch * F.sigmoid(self.beta * batch)
 
 discriminator = nn.Sequential(
-        nn.Conv2d(2, 16, 4, stride=2, padding=1),
+        nn.Conv2d(1, 4, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(16, 32, 4, stride=2, padding=1),
+        nn.Conv2d(4, 8, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(32, 64, 3),
+        nn.Conv2d(8, 16, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(64, 64, 3),
+        Reshape(-1, 4096),
+        nn.Linear(4096, 100),
         nn.LeakyReLU(0.2),
-        Reshape(-1, 576),
-        nn.Linear(576, 1),
+        nn.Linear(100, 1),
         )
 
 transformer = nn.Sequential(
@@ -70,27 +83,29 @@ transformer = nn.Sequential(
         )
 
 encoder = nn.Sequential(
-        nn.Conv2d(2, 16, 4, stride=2, padding=1),
+        nn.Conv2d(1, 4, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(16, 32, 4, stride=2, padding=1),
+        nn.Conv2d(4, 8, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(32, 32, 3),
+        nn.Conv2d(8, 16, 5),
         nn.LeakyReLU(0.2),
-        nn.Conv2d(32, 32, 3),
+        Reshape(-1, 4096),
+        nn.Linear(4096, 100),
         nn.LeakyReLU(0.2),
-        Reshape(-1, 288),
-        nn.Linear(288, 40),
+        nn.Linear(100, 2*latent_size),
         )
 
 decoder = nn.Sequential(
-        nn.Linear(20, 1600),
+        nn.Linear(latent_size, 100),
         nn.LeakyReLU(0.2),
-        Reshape(-1, 64, 5, 5),
-        nn.ConvTranspose2d(64, 32, 3),
+        nn.Linear(100, 4096),
         nn.LeakyReLU(0.2),
-        nn.ConvTranspose2d(32, 16, 4, stride=2, padding=1),
+        Reshape(-1, 16, 16, 16),
+        nn.ConvTranspose2d(16, 8, 5),
         nn.LeakyReLU(0.2),
-        nn.ConvTranspose2d(16, 2, 4, stride=2, padding=1),
+        nn.ConvTranspose2d(8, 4, 5),
+        nn.LeakyReLU(0.2),
+        nn.ConvTranspose2d(4, 1, 5),
         )
 
 
