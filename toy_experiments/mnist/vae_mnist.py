@@ -26,12 +26,12 @@ ref = torch.arange(0, 64).long()
 print("Ready to train")
 for epoch in range(10):
     for i, (img, label) in enumerate(data_loader):
-        img[:, 0, 0, :][ref, label*2] = 1
-        img[:, 0, 0, :][ref, label*2+1] = 1
-        img[:, 0, 1, :][ref, label*2] = 1
-        img[:, 0, 1, :][ref, label*2+1] = 1
-        img[:, 0, 2, :][ref, label*2] = 1
-        img[:, 0, 2, :][ref, label*2+1] = 1
+        #img[:, 0, 0, :][ref, label*2] = 1
+        #img[:, 0, 0, :][ref, label*2+1] = 1
+        #img[:, 0, 1, :][ref, label*2] = 1
+        #img[:, 0, 1, :][ref, label*2+1] = 1
+        #img[:, 0, 2, :][ref, label*2] = 1
+        #img[:, 0, 2, :][ref, label*2+1] = 1
         cat = Variable(img)
         #cat = torch.cat([img, mean_images[label]], dim=1)
         #cat = Variable(cat)
