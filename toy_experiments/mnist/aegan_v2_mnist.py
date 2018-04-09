@@ -84,6 +84,6 @@ for epoch in range(epochs):
     vis.images(fake[:, 0, :, :].data.cpu().clamp(0, 1).view(64, 1, 28, 28), win="fake1", opts={"caption": "fake images"})
     print("Epoch {}/{}, loss: {}".format(epoch, epochs, float(loss)))
 
-torch.save(E.state_dict(), open("saved_nets/aegan_encoder.params", "wb"))
-torch.save(G.state_dict(), open("saved_nets/aegan_decoder.params", "wb"))
+torch.save(E.state_dict(), open("saved_nets/aegan2_encoder.params", "wb"))
+torch.save(G.state_dict(), open("saved_nets/aegan2_decoder.params", "wb"))
 
