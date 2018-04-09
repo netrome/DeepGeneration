@@ -21,14 +21,14 @@ if "cuda" in sys.argv:
     D.cuda()
     latent = latent.cuda()
 
-opt = torch.optim.Adam([
+opt = torch.optim.Adamax([
     {'params': E.parameters()},
     {'params': G.parameters()},
-    ])
+    ], lr=0.0002, betas=(0.5, 0.99))
 
 opt_D = torch.optim.Adamax([
     {'params': D.parameters()},
-    ], betas=(0.5, 0.99))
+    ], lr=0.0002, betas=(0.5, 0.99))
 
 print("Ready to train")
 ref = torch.arange(0, 64).long()
@@ -65,7 +65,7 @@ for epoch in range(epochs):
             adv_loss = torch.mean((pred_fake - 1).pow(2))
             drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))
 
-            loss = L1 + drift_loss + adv_loss * 1e-2
+            loss = L1 + drift_loss + adv_loss 
 
             opt.zero_grad()
             loss.backward()
