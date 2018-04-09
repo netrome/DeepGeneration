@@ -52,7 +52,7 @@ for epoch in range(10):
         L1 = torch.mean(torch.abs(decoded - cat))
         KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp()) / 64 / u.latent_size
 
-        loss = L1 #+ KLD * 0.01
+        loss = L1 + KLD * 0.01
 
         opt.zero_grad()
         loss.backward()
