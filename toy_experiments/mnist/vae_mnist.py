@@ -47,7 +47,7 @@ for epoch in range(10):
         eps = Variable(std.data.new(std.size()).normal_())
         sampled = eps.mul(std).add_(mu).view(64, u.latent_size)
 
-        decoded = G(mu)
+        decoded = G(sampled)
 
         L1 = torch.mean(torch.abs(decoded - cat))
         KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp()) / 64 / u.latent_size
