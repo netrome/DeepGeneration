@@ -10,9 +10,9 @@ test_data = data.MNIST("~/Data/mnist/", train=False, transform=trans.ToTensor())
 
 latent_size = 20
 
-def get_data_loader(train=True):
+def get_data_loader(train=True, batch_size=64):
     data = train_data if train else test_data
-    return loader.DataLoader(data, shuffle=train, pin_memory=True, batch_size=64, drop_last=True)
+    return loader.DataLoader(data, shuffle=train, pin_memory=True, batch_size=batch_size, drop_last=True)
 
 def get_mean_images():
     raise DeprecationWarning("No more mean images")

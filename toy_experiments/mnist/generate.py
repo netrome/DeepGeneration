@@ -9,7 +9,7 @@ latent = Variable(torch.FloatTensor(256, u.latent_size))  # Generate and visuali
 latent.data.normal_()
 G = u.decoder 
 
-G.load_state_dict(torch.load(open(sys.argv[1], "rb")))
+G.load_state_dict(torch.load(open("saved_nets/{}_decoder.params".format(sys.argv[1]), "rb")))
 
 fake = G(latent)
 
