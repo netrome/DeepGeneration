@@ -68,6 +68,20 @@ discriminator = nn.Sequential(
         nn.Linear(100, 1),
         )
 
+classifier = nn.Sequential(
+        nn.Conv2d(1, 4, 5),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(4, 8, 5),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(8, 16, 5),
+        nn.LeakyReLU(0.2),
+        Reshape(-1, 4096),
+        nn.Linear(4096, 100),
+        nn.LeakyReLU(0.2),
+        nn.Linear(100, 10),
+        )
+
+
 transformer = nn.Sequential(
         nn.Conv2d(1, 16, 4, stride=2, padding=1),
         nn.LeakyReLU(0.2),
