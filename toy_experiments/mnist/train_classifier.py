@@ -17,6 +17,10 @@ if "augment" in sys.argv:
     E.load_state_dict(torch.load(open("saved_nets/{}_encoder.params".format(sys.argv[1]), "rb")))
     G.load_state_dict(torch.load(open("saved_nets/{}_decoder.params".format(sys.argv[1]), "rb")))
 
+    if "cuda" in sys.argv:
+        E.cuda()
+        G.cuda()
+
 opt = torch.optim.Adam(C.parameters())
 criterion = nn.BCEWithLogitsLoss()
 ref = torch.arange(0, 64).long()
@@ -26,8 +30,6 @@ if "cuda" in sys.argv:
     ref = ref.cuda()
     one_hot = one_hot.cuda()
     C.cuda()
-    E.cuda()
-    G.cuda()
 
 epochs = 10
 for epoch in range(epochs):
@@ -40,7 +42,7 @@ for epoch in range(epochs):
         if "augment" in sys.argv:
             out = E(Variable(img))
             mu, log_var = out[:, :u.latent_size], out[:, u.latent_size:]
-            std = log_var.mul(0.5).exp_()
+            std = log_var.mul(0.5).exp_() 
             eps = Variable(std.data.new(std.size()).normal_())
             sampled = eps.mul(std).add_(mu).view(64, u.latent_size)
             fake = G(sampled)

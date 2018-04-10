@@ -96,6 +96,7 @@ transformer = nn.Sequential(
         nn.ConvTranspose2d(16, 1, 4, stride=2, padding=1),
         )
 
+
 encoder = nn.Sequential(
         nn.Conv2d(1, 4, 5),
         nn.LeakyReLU(0.2),
