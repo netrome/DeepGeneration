@@ -7,7 +7,7 @@ from visdom import Visdom
 import sys
 
 C = u.classifier
-#C.load_state_dict(torch.load(open(sys.argv[1], "rb")))
+C.load_state_dict(torch.load(open(sys.argv[1], "rb")))
 data_loader = u.get_data_loader(train=False)
 data_loader.drop_last = False
 

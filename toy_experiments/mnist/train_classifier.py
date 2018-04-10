@@ -31,9 +31,10 @@ if "cuda" in sys.argv:
     one_hot = one_hot.cuda()
     C.cuda()
 
-epochs = 10
+epochs = 100
 for epoch in range(epochs):
     for i, (img, label) in enumerate(data_loader):
+        one_hot = one_hot.detach()
         if "cuda" in sys.argv:
             img = img.cuda()
             label = label.cuda()
