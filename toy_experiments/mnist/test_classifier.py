@@ -23,7 +23,7 @@ if "cuda" in sys.argv:
 epochs = 10
 corrects = 0
 total = 0
-for epoch in range(epochs):
+for epoch in range(1):
     for i, (img, label) in enumerate(data_loader):
         if "cuda" in sys.argv:
             img = img.cuda()
@@ -37,7 +37,6 @@ for epoch in range(epochs):
 
         if i % 30 == 0:
             print("Iter: {}/{}    ".format(i, len(data_loader)), end="\r")
-    print("Epoch {}/{},          ".format(epoch, epochs))
 
 print("Results ---------------")
 print("Corrects: {}".format(corrects))
