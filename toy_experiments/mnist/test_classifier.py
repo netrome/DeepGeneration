@@ -42,6 +42,7 @@ for epoch in range(1):
 
 print("Results ---------------")
 print("Corrects: {}".format(corrects))
+print("Errs: {}".format(total - corrects))
 print("Total: {}".format(total))
 print("Accuracy: {}".format(corrects/total))
 
