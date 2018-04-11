@@ -60,10 +60,10 @@ for epoch in range(epochs):
             update_state = 0
 
             L1 = torch.mean(torch.abs(decoded - cat))
-            param_loss = torch.mean(mu ** 2 + (log_var + 3) ** 2)
+            param_loss = torch.mean(mu ** 2 + (log_var + 2.7) ** 2)
             adv_loss = torch.mean((pred_fake - 1).pow(2))
 
-            loss = L1 + param_loss * 1e-1 + adv_loss * 1e-1
+            loss = 10*L1 + param_loss * 1e-1 + adv_loss * 1e-1
 
             opt.zero_grad()
             loss.backward()

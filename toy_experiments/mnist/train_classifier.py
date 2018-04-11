@@ -8,6 +8,7 @@ import sys
 
 C = u.classifier
 data_loader = u.get_data_loader()
+std_dampener = 1
 
 if "augment" in sys.argv:
     print("Using augmented data")
@@ -31,7 +32,9 @@ if "cuda" in sys.argv:
     one_hot = one_hot.cuda()
     C.cuda()
 
-epochs = 100
+epochs = 400
+if "augment" in sys.argv:
+    epochs = int(epochs / 2)
 for epoch in range(epochs):
     for i, (img, label) in enumerate(data_loader):
         one_hot = one_hot.detach()
@@ -43,7 +46,7 @@ for epoch in range(epochs):
         if "augment" in sys.argv:
             out = E(Variable(img))
             mu, log_var = out[:, :u.latent_size], out[:, u.latent_size:]
-            std = log_var.mul(0.5).exp_() 
+            std = log_var.mul(0.5).exp_() * std_dampener
             eps = Variable(std.data.new(std.size()).normal_())
             sampled = eps.mul(std).add_(mu).view(64, u.latent_size)
             fake = G(sampled)
