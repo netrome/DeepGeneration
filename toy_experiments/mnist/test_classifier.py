@@ -8,12 +8,12 @@ import sys
 
 C = u.classifier
 C.load_state_dict(torch.load(open(sys.argv[1], "rb")))
-data_loader = u.get_data_loader(train=False)
+data_loader = u.get_data_loader(train=False, batch_size=100)
 data_loader.drop_last = False
 
 opt = torch.optim.Adam(C.parameters())
-ref = torch.arange(0, 64).long()
-one_hot = Variable(torch.zeros(64, 10))
+ref = torch.arange(0, 100).long()
+one_hot = Variable(torch.zeros(100, 10))
 
 if "cuda" in sys.argv:
     ref = ref.cuda()
