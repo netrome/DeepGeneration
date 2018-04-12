@@ -5,7 +5,7 @@ hidden_size = 100
 latent_size = 2
 
 encoder = nn.Sequential(
-        nn.Linear(3, hidden_size),
+        nn.Linear(5, hidden_size),
         nn.ReLU(),
         nn.Linear(hidden_size, 2*latent_size)
         )
@@ -13,11 +13,11 @@ encoder = nn.Sequential(
 decoder = nn.Sequential(
         nn.Linear(latent_size, hidden_size),
         nn.ReLU(),
-        nn.Linear(hidden_size, 3)
+        nn.Linear(hidden_size, 5)
         )
 
 discriminator = nn.Sequential(
-        nn.Linear(3, hidden_size),
+        nn.Linear(5, hidden_size),
         nn.ReLU(),
         nn.Linear(hidden_size, hidden_size),
         nn.ReLU(),
@@ -29,5 +29,5 @@ classifier = nn.Sequential(
         nn.ReLU(),
         nn.Linear(hidden_size, hidden_size),
         nn.ReLU(),
-        nn.Linear(hidden_size, 1)
+        nn.Linear(hidden_size, 3)
         )

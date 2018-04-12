@@ -18,7 +18,7 @@ decoder.load_state_dict(torch.load("saved_nets/{}_decoder.params".format(sys.arg
 
 # Get original data
 X, Y = iris.get_train_data()
-data = np.concatenate([X, Y.reshape([75, 1])], axis=1)
+data = np.concatenate([X, Y.reshape([75, 3])], axis=1)
 complete_batch = Variable(torch.from_numpy(data).float(), volatile=True)
 
 # Encode-decode data
@@ -33,10 +33,10 @@ generated = decoder(latent)
 decoded = decoded.data.numpy()
 generated = generated.data.numpy()
 
-plt.scatter(X[:, 0], X[:, 1], c=Y)
+plt.scatter(X[:, 0], X[:, 1], c=iris.ohe_to_idx(Y))
 plt.figure()
-plt.scatter(decoded[:, 0], decoded[:, 1], c=decoded[:, 2])
+plt.scatter(decoded[:, 0], decoded[:, 1], c=iris.ohe_to_idx(decoded[:, 2:]))
 plt.figure()
-plt.scatter(generated[:, 0], generated[:, 1], c=generated[:, 2])
+plt.scatter(generated[:, 0], generated[:, 1], c=iris.ohe_to_idx(generated[:, 2:]))
 plt.show()
 
