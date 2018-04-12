@@ -20,7 +20,7 @@ latent = Variable(torch.FloatTensor(75, networks.latent_size).normal_())
 
 # Minor data processing, concatenate the data sets
 X, Y = iris.get_train_data()
-data = np.concatenate([X, Y.reshape([75, 1])], axis=1)
+data = np.concatenate([X, Y.reshape([75, 3])], axis=1)
 complete_batch = Variable(torch.from_numpy(data).float())
 
 opt_GE = torch.optim.Adam([
