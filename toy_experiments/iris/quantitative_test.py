@@ -62,4 +62,5 @@ pred_idices = test_pred.max(1)[1]
 test_targets = test_batch[:, 2:].max(1)[1]
 corrects = int((pred_idices == test_targets).sum())
 print("Corrects: {}/{}".format(corrects, len(test_targets)))
+print("Error_rate: {}".format((75 - corrects) / len(test_targets)))
 

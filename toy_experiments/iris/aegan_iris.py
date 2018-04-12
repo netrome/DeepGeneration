@@ -51,7 +51,7 @@ for i in range(iters):
         adversarial_loss = torch.mean((pred_fake - 1).pow(2))
         drift_loss = torch.mean(F.relu(encoded.norm(2, 1) - 1))
 
-        loss = L1 + drift_loss + adversarial_loss * 0.1
+        loss = L1 + adversarial_loss + drift_loss
 
         opt_GE.zero_grad()
         loss.backward()
