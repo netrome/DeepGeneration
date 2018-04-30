@@ -10,10 +10,14 @@ import utils.datasets as datasets
 import settings
 import os
 
+image_grid = (6, 4)
+
+num_images = image_grid[0] * image_grid[1]
+
 G = u.create_generator()
 
 toRGB = nn.Conv2d(16, 2, 1)
-latent = Variable(torch.FloatTensor(8, 128, 1, 1))
+latent = Variable(torch.FloatTensor(num_images, 128, 1, 1))
 
 torch.random.manual_seed(1337)
 
@@ -27,7 +31,7 @@ if settings.CUDA:
 latent.data.normal_()
 fake = toRGB(G(latent))
 
-single = make_grid(fake[:, 0].data.cpu().contiguous().view(8, 1, 256, 256))
+single = make_grid(fake[:, 0].data.cpu().contiguous().view(num_images, 1, 256, 256), nrow=image_grid[0]) 
 save_image(single, "/tmp/fake.png")
 
 print("Done")
