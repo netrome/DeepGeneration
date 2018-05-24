@@ -12,6 +12,9 @@ import utils.utils as u
 out_dir = "./output/"
 num_batches = 150
 
+if settings.TEST_DATA:
+    num_batches=15
+
 G = u.create_generator()
 toRGB = nn.Conv2d(16, 2, 1)
 G.load_state_dict(torch.load(os.path.join(settings.MODEL_PATH, "G.params")))

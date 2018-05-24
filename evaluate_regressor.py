@@ -56,8 +56,8 @@ def jaccard_distance(targets, predictions):
 
     errors = np.zeros(len(pred_map))
     for i in range(len(pred_map)):
-        intersection = torch.sum((pred_map[i] + target_map[i]) > 1)
-        union = torch.sum((pred_map[i] + target_map[i]) >= 1)
+        intersection = torch.sum((pred_map[i] + target_map[i]) > 1) + 1
+        union = torch.sum((pred_map[i] + target_map[i]) >= 1) + 1
         errors[i] = float(1 - intersection/union)
 
     return errors
