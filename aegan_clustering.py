@@ -44,5 +44,18 @@ print("PCA learned")
 X = pca.transform(latent)
 
 # Plot transformed data
-plt.scatter(X[:, 0], X[:, 1])
+fig2, ax2 = plt.subplots()
+def onclick(event):
+    point = event.artist
+    ind = event.ind 
+    print("Halloj: {}".format(ind))
+
+    for i in ind:
+        img = data[i][0,:,:]
+        ax2.imshow(img, cmap="gray")
+        fig2.show()
+
+fig, ax = plt.subplots()
+ax.scatter(X[:, 0], X[:, 1], picker=5)
+fig.canvas.mpl_connect("pick_event", onclick)
 plt.show()
