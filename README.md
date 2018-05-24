@@ -1,9 +1,4 @@
 # Synthetic data generation through GANs
 
-To check out:
-- Progressive
-- Semi-supervised
-- Combine GAN with VAE
-- Be Awesome
-
+This is a collection of scripts and utilities used in the context of my thesis project.
 
