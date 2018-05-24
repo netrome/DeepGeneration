@@ -5,6 +5,7 @@ import torch
 from torch.autograd import Variable
 import settings
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 
 import utils.utils as u
@@ -37,11 +38,11 @@ print("Done stuff")
 
 latent = latent.numpy()
 
-pca = PCA(n_components=2)
-pca.fit(latent)
-print("PCA learned")
-
-X = pca.transform(latent)
+#pca = PCA(n_components=2)
+tsne = TSNE(n_components=2)
+#pca.fit(latent)
+X = tsne.fit_transform(latent)
+print("TSNE learned and used")
 
 # Plot transformed data
 fig2, ax2 = plt.subplots()
