@@ -70,9 +70,10 @@ class GeneratedWithMaps(Dataset):
 
 
 class DeepGazeData(Dataset):
-    def __init__(self, test=False):
+    def __init__(self, test=False, always_same=False):
         name = "test" if test else "train"
         self.meta_files = json.load(open("lists/DG_{}.json".format(name), "r"))
+        self.always_same = always_same
 
     def __len__(self):
         return len(self.meta_files)
@@ -83,7 +84,7 @@ class DeepGazeData(Dataset):
         meta = json.load(open(file, "r"))
         region, tracks = meta["cropped_region"], meta["markup"]["tracks"]
         pupils = [i for i in tracks if i["name"] == "pupil"]
-        pupil = random.choice(pupils)
+        pupil = random.choice(pupils) if not self.always_same else pupils[0]
         x, y = pupil["points"][0]["x"], pupil["points"][0]["y"]
         wx, wy = pupil["radius"]["x"], pupil["radius"]["y"]
         rotation = pupil["rotation_angle"]
@@ -103,6 +104,8 @@ class DeepGazeData(Dataset):
         max_x = min(w - 256, x - 56)
         max_y = h - 256
         start = (random.randint(0, max_y), random.randint(min_x, max_x))
+        if self.always_same:
+            start = (min(y, max_y), max(min(x, max_x), min_x))
 
         return tot[:, start[0]:start[0] + 256, start[1]:start[1] + 256]
 

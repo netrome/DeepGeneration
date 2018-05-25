@@ -16,6 +16,7 @@ encoder.load_state_dict(torch.load(os.path.join(settings.MODEL_PATH, "E.params")
 fromRGB.load_state_dict(torch.load(os.path.join(settings.MODEL_PATH, "fromRGB6.params")))
 
 data = u.get_data_set()
+data.always_same = True  # Makes DeepGaze data deterministic
 data_loader = torch.utils.data.DataLoader(data, batch_size=30)
 
 latent = torch.zeros(len(data), 128)
@@ -49,7 +50,7 @@ fig2, ax2 = plt.subplots()
 def onclick(event):
     point = event.artist
     ind = event.ind 
-    print("Halloj: {}".format(ind))
+    print("Clicked indices: {}".format(ind))
 
     for i in ind:
         img = data[i][0,:,:]
